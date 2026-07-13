@@ -1,0 +1,7 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "verdict.schema.json",
+  "title": "Verdict",
+  "description": "판정 결과 4-state enum. 의미 정의는 DOMAIN.md 1장. 상태: 초안 — freeze 전 (Phase 4)",
+  "type": "object"
+}

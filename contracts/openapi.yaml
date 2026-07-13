@@ -1,0 +1,8 @@
+# 상태: 초안 — freeze 전 (Phase 4에서 확정)
+# freeze 후에는 사람 승인 없이 수정 금지 (CLAUDE.md DO NOT 참조)
+openapi: 3.1.0
+info:
+  title: youth-policy API
+  version: 0.0.1
+paths: {}
+# 예정: POST /verdicts (단일 stateless 엔드포인트)
