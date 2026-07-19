@@ -2,6 +2,36 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "verdict.schema.json",
   "title": "Verdict",
-  "description": "판정 결과 4-state enum. 의미 정의는 DOMAIN.md 1장. 상태: 초안 — freeze 전 (Phase 4)",
-  "type": "object"
+  "description": "판정 결과 4-state. 의미 정의는 DOMAIN.md 1장. freeze 후 사람 승인 없이 수정 금지 (CLAUDE.md DO NOT).",
+  "$defs": {
+    "VerdictState": {
+      "type": "string",
+      "enum": ["eligible", "ineligible", "needs_review", "out_of_scope"],
+      "description": "DOMAIN 1.1 — eligible=가능, ineligible=부적합, needs_review=추가 확인 필요, out_of_scope=자가판정 불가"
+    },
+    "UnknownReason": {
+      "type": "string",
+      "enum": ["input_uncertain", "admin_discretion", "boundary"],
+      "description": "DOMAIN 3.1 unknown 출처 태그 — needs_review 안내 문구 분기용"
+    }
+  },
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["state"],
+  "properties": {
+    "state": { "$ref": "#/$defs/VerdictState" },
+    "unknown_reasons": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/UnknownReason" },
+      "description": "state=needs_review일 때만 유의미. unknown을 유발한 출처 태그 집합."
+    }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "state": { "const": "needs_review" } }, "required": ["state"] },
+      "then": { "required": ["unknown_reasons"] },
+      "else": { "not": { "required": ["unknown_reasons"] } }
+    }
+  ]
 }

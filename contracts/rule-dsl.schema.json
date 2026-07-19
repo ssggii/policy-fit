@@ -2,6 +2,66 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "rule-dsl.schema.json",
   "title": "Rule DSL",
-  "description": "rule DSL 문법의 기계 검증용 스키마. 의미(해석 규칙)는 DOMAIN.md 4장. 상태: 초안 — freeze 전 (Phase 4)",
-  "type": "object"
+  "description": "정책 자격 요건 트리. 의미(평가)는 DOMAIN.md 3·4장. freeze 후 사람 승인 없이 수정 금지 (CLAUDE.md DO NOT).",
+  "$ref": "#/$defs/node",
+  "$defs": {
+    "node": {
+      "oneOf": [
+        { "$ref": "#/$defs/all_of" },
+        { "$ref": "#/$defs/any_of" },
+        { "$ref": "#/$defs/not" },
+        { "$ref": "#/$defs/atom" }
+      ]
+    },
+    "all_of": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["all_of"],
+      "properties": {
+        "all_of": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/node" } }
+      }
+    },
+    "any_of": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["any_of"],
+      "properties": {
+        "any_of": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/node" } }
+      }
+    },
+    "not": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["not"],
+      "properties": {
+        "not": { "$ref": "#/$defs/node" }
+      }
+    },
+    "atom": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["atom"],
+      "properties": {
+        "atom": {
+          "type": "string",
+          "enum": ["age", "housing_none", "lease_type", "income_self", "income_household",
+                   "income_original", "asset_self", "household_composition", "employment",
+                   "education", "benefit_overlap", "separate_residence"],
+          "description": "DOMAIN 2.3 원자 카탈로그 ID"
+        },
+        "params": { "type": "object" },
+        "meta": { "$ref": "#/$defs/meta" }
+      }
+    },
+    "meta": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source", "year"],
+      "properties": {
+        "source": { "type": "string" },
+        "year": { "type": "integer" }
+      },
+      "description": "SPEC F-004 출처·기준연도"
+    }
+  }
 }
