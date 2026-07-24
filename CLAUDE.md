@@ -51,11 +51,18 @@
 
 ## 기술 스택
 
-- TBD — ADR로 확정 후 기입 (Phase 5)
+- ADR-0004 확정. 상세·근거는 adr/0004.
+  - 백엔드: Java 21 + Spring Boot 3.x (판정 엔진 직접 구현, `POST /verdicts`)
+  - 프론트: Next.js (App Router) + TypeScript
+  - 계약: `contracts/`(openapi·JSON Schema) → Java 모델 + TS 타입 생성 (SSOT)
+  - 테스트: 백엔드 JUnit 5 / 프론트 Vitest + Playwright
+  - 빌드: 백엔드 Gradle · 프론트 pnpm
+  - 구조: 단일 저장소(`backend/`·`web/`·`contracts/`), 두 서비스 독립 배포
+  - 배포: 프론트 Vercel · 백엔드 JVM 호스트(미정, 5b에서 확정)
 
 ## 자주 쓰는 명령어
 
-- TBD — 프로젝트 스캐폴딩 후 기입
+- TBD — 5b 스캐폴딩 후 기입
 
 ## DO NOT - 절대 금지
 
