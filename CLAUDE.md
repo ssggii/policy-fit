@@ -52,7 +52,7 @@
 ## 기술 스택
 
 - ADR-0004 확정. 상세·근거는 adr/0004.
-  - 백엔드: Java 21 + Spring Boot 3.x (판정 엔진 직접 구현, `POST /verdicts`)
+  - 백엔드: Java 21 + Spring Boot 4.x (판정 엔진 직접 구현, `POST /verdicts`)
   - 프론트: Next.js (App Router) + TypeScript
   - 계약: `contracts/`(openapi·JSON Schema) → Java 모델 + TS 타입 생성 (SSOT)
   - 테스트: 백엔드 JUnit 5 / 프론트 Vitest + Playwright
@@ -62,7 +62,15 @@
 
 ## 자주 쓰는 명령어
 
-- TBD — 5b 스캐폴딩 후 기입
+백엔드 (`backend/`):
+  - 빌드·테스트: `./gradlew build`
+  - 로컬 실행: `./gradlew bootRun`
+  
+프론트 (`web/`):
+  - 개발 서버: `pnpm dev`
+  - 빌드: `pnpm build`
+  - 린트: `pnpm lint`
+
 
 ## DO NOT - 절대 금지
 
