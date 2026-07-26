@@ -44,3 +44,12 @@
 3. 문서 영향(SPEC·DOMAIN·ARCHITECTURE·ADR)이 반영되거나 diff로 제안됐다.
 
 수용 기준(기능별 "무엇이 참이어야 하나")과 DoD(모든 작업 공통 "완료 바")는 함께 성립해야 한다.
+
+## Jira 연동 (예약 — 원격·Jira 프로젝트 생성 후 활성)
+
+Jira-GitHub 연동은 **Jira 이슈 키**(예: `PROJ-123`)를 브랜치·커밋·PR에서 스캔해 이슈에 링크한다. 활성 시 아래를 적용한다(프로젝트 키 `<JIRA-KEY>`는 확정 후 치환):
+
+- **브랜치**: `type/<JIRA-KEY>-슬러그` (예: `feat/PROJ-123-verdict`)
+- **커밋**: 제목 또는 본문에 `<JIRA-KEY>` + 기존 `Refs: F-ID` 푸터 **유지** — 커넥터 링크와 git 영구 spec 추적을 둘 다 확보(옵션 A).
+- **PR 제목**: `<JIRA-KEY>` 포함. CI의 PR-title 린트는 Jira 키를 허용하도록 구성한다.
+- **원칙 유지**: SPEC·`contracts/`는 Jira를 모른다. Jira 이슈가 F-ID를 참조하는 **단방향**. F-ID는 git에 영구(SSOT), Jira 키는 소모성 작업 추적용.
