@@ -1,0 +1,28 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/guard-protected-paths.sh",
+            "timeout": 10,
+            "statusMessage": "보호 경로 확인 (게이트 C)"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/guard-dependency.sh",
+            "timeout": 10,
+            "statusMessage": "의존성 게이트 확인 (게이트 D)"
+          }
+        ]
+      }
+    ]
+  }
+}
