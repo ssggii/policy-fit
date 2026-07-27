@@ -25,6 +25,16 @@
 - F-ID가 없는 작업은 `chore/...`·`docs/...`.
 - `main`은 직접 커밋하지 않고 **PR로만 병합**한다(원격 연결 후 브랜치 보호 활성).
 
+### PR merge 후 로컬 동기화 (squash merge)
+
+squash merge는 origin/main에 새 커밋을 만들어 로컬과 갈라진다. merge 후:
+
+```
+git fetch origin && git checkout main
+git reset --hard origin/main
+git remote prune origin
+```
+
 ## PR
 
 - `.github/PULL_REQUEST_TEMPLATE.md`를 따른다.

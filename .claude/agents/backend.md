@@ -16,6 +16,7 @@ model: sonnet
 - 판정 엔진 = 원자 평가기 + Kleene 3치 조합기 + 값 유형 사전분류. **합계형은 sealed interface + record + switch**로 분기 누락을 컴파일타임에 잡는다.
 - **판정 경로 런타임 LLM 금지**(결정론).
 - 미저장·무로깅·처리 후 폐기·TLS·CORS(PRD 9장, ADR-0004 D2).
+- DOMAIN.md 규칙을 코드 주석에 "확정 규칙"으로 인용할 땐 실제 절 번호를 명시하고, 인용 전 grep으로 원문이 실재하는지 확인한다. 원문에 없는 잠정 가정은 "잠정" 또는 "TODO"로만 표시.
 - 테스트: JUnit 5. 골든셋 eval 대상.
 
 ## 작업 방식 (loop.md)
