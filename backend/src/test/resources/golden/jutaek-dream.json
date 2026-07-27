@@ -1,0 +1,94 @@
+[
+  {
+    "caseId": "age-19-lower-boundary-eligible",
+    "answers": {
+      "age": { "known": true, "value": 19 },
+      "housing_none": { "known": true, "value": true },
+      "income_self_monthly_krw": { "known": true, "approx": false, "value": 3000000 }
+    },
+    "expectedState": "eligible",
+    "source": "국토교통부 청년 주택드림 청약통장 가입요건(만 19~34세) — DOMAIN.md §5.1"
+  },
+  {
+    "caseId": "age-18-below-min-ineligible",
+    "answers": {
+      "age": { "known": true, "value": 18 },
+      "housing_none": { "known": true, "value": true },
+      "income_self_monthly_krw": { "known": true, "approx": false, "value": 3000000 }
+    },
+    "expectedState": "ineligible",
+    "source": "국토교통부 청년 주택드림 청약통장 가입요건(만 19~34세) — DOMAIN.md §5.1"
+  },
+  {
+    "caseId": "age-34-upper-boundary-eligible",
+    "answers": {
+      "age": { "known": true, "value": 34 },
+      "housing_none": { "known": true, "value": true },
+      "income_self_monthly_krw": { "known": true, "approx": false, "value": 3000000 }
+    },
+    "expectedState": "eligible",
+    "source": "국토교통부 청년 주택드림 청약통장 가입요건(만 19~34세) — DOMAIN.md §5.1"
+  },
+  {
+    "caseId": "age-35-above-max-ineligible",
+    "answers": {
+      "age": { "known": true, "value": 35 },
+      "housing_none": { "known": true, "value": true },
+      "income_self_monthly_krw": { "known": true, "approx": false, "value": 3000000 }
+    },
+    "expectedState": "ineligible",
+    "source": "국토교통부 청년 주택드림 청약통장 가입요건(만 19~34세) — DOMAIN.md §5.1"
+  },
+  {
+    "caseId": "income-just-under-annual-cap-eligible",
+    "answers": {
+      "age": { "known": true, "value": 28 },
+      "housing_none": { "known": true, "value": true },
+      "income_self_monthly_krw": { "known": true, "approx": false, "value": 4166666 }
+    },
+    "expectedState": "eligible",
+    "source": "연소득 5천만원 이하(국토교통부) — 월→연 환산 ×12는 잠정 가정, 공식 환산 규정 미확정(추정 — 공식 검증 필요)"
+  },
+  {
+    "caseId": "income-just-over-annual-cap-ineligible",
+    "answers": {
+      "age": { "known": true, "value": 28 },
+      "housing_none": { "known": true, "value": true },
+      "income_self_monthly_krw": { "known": true, "approx": false, "value": 4200000 }
+    },
+    "expectedState": "ineligible",
+    "source": "연소득 5천만원 이하(국토교통부) — 월→연 환산 ×12는 잠정 가정, 공식 환산 규정 미확정(추정 — 공식 검증 필요)"
+  },
+  {
+    "caseId": "income-unknown-needs-review",
+    "answers": {
+      "age": { "known": true, "value": 28 },
+      "housing_none": { "known": true, "value": true },
+      "income_self_monthly_krw": { "known": false }
+    },
+    "expectedState": "needs_review",
+    "expectedUnknownReasons": ["input_uncertain"],
+    "source": "DOMAIN.md §3.1 입력 불확실(모름) → unknown/input_uncertain"
+  },
+  {
+    "caseId": "income-approx-needs-review-input-uncertain",
+    "answers": {
+      "age": { "known": true, "value": 28 },
+      "housing_none": { "known": true, "value": true },
+      "income_self_monthly_krw": { "known": true, "approx": true, "value": 4000000 }
+    },
+    "expectedState": "needs_review",
+    "expectedUnknownReasons": ["input_uncertain"],
+    "source": "DOMAIN.md §3.4 — self 원자의 '모름/대략' 입력은 입력 불확실로 분류. approx=true는 항상 unknown 처리(자동 해소 금지)"
+  },
+  {
+    "caseId": "housing-owned-ineligible",
+    "answers": {
+      "age": { "known": true, "value": 28 },
+      "housing_none": { "known": true, "value": false },
+      "income_self_monthly_krw": { "known": true, "approx": false, "value": 3000000 }
+    },
+    "expectedState": "ineligible",
+    "source": "국토교통부 청년 주택드림 청약통장 가입요건(무주택) — DOMAIN.md §5.1(추정 — 공식 검증 필요)"
+  }
+]

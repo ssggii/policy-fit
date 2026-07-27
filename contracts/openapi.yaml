@@ -3,6 +3,99 @@
 openapi: 3.1.0
 info:
   title: youth-policy API
-  version: 0.0.1
-paths: {}
-# 예정: POST /verdicts (단일 stateless 엔드포인트)
+  version: 0.1.0
+paths:
+  /verdicts:
+    post:
+      operationId: judgeVerdict
+      summary: 단일 정책 자격 판정 (stateless)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/VerdictRequest' }
+      responses:
+        '200':
+          description: 판정 결과
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/VerdictResult' }
+        '400':
+          description: 요청 형식 오류
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+components:
+  schemas:
+    VerdictRequest:
+      type: object
+      additionalProperties: false
+      required: [policy_id, answers]
+      properties:
+        policy_id:
+          type: string
+          enum: [jutaek-dream]   # 정책 추가마다 enum 확장 = 자연스러운 게이트 C 지점
+        answers:
+          type: object
+          additionalProperties: false
+          properties:
+            age: { $ref: '#/components/schemas/AnswerInt' }
+            housing_none: { $ref: '#/components/schemas/AnswerBool' }
+            income_self_monthly_krw: { $ref: '#/components/schemas/AnswerApproxInt' }
+    AnswerInt:
+      type: object
+      additionalProperties: false
+      required: [known]
+      properties:
+        known: { type: boolean }
+        value: { type: integer }
+    AnswerBool:
+      type: object
+      additionalProperties: false
+      required: [known]
+      properties:
+        known: { type: boolean }
+        value: { type: boolean }
+    AnswerApproxInt:
+      type: object
+      additionalProperties: false
+      required: [known]
+      properties:
+        known: { type: boolean }
+        approx: { type: boolean }
+        value: { type: integer }
+    VerdictResult:
+      type: object
+      additionalProperties: false
+      required: [policy_id, verdict, reasoning]
+      properties:
+        policy_id: { type: string }
+        verdict: { $ref: 'verdict.schema.json' }   # freeze된 원본을 그대로 embed, 복제 안 함
+        reasoning:
+          type: array
+          items: { $ref: '#/components/schemas/AtomReasoning' }
+        application:
+          type: object
+          nullable: true          # F-006: ineligible엔 null/omit
+          additionalProperties: false
+          properties:
+            url: { type: string, format: uri }
+            selection_method: { type: string }   # F-007 고지
+            period: { type: string }
+    AtomReasoning:
+      type: object
+      additionalProperties: false
+      required: [atom, label, result]
+      properties:
+        atom: { type: string }
+        label: { type: string }   # 행정 용어 → 일상어 (F-004)
+        result: { type: string, enum: [met, unmet, unknown] }
+        detail: { type: string }
+        source: { type: string }
+        year: { type: integer }
+    ErrorResponse:
+      type: object
+      additionalProperties: false
+      required: [message]
+      properties:
+        message: { type: string }
