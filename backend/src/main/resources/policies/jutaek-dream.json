@@ -1,0 +1,16 @@
+{
+  "id": "jutaek-dream",
+  "name": "청년 주택드림 청약통장",
+  "rule": {
+    "all_of": [
+      { "atom": "age", "params": { "min": 19, "max": 34 }, "meta": { "source": "국토교통부", "year": 2026 } },
+      { "atom": "housing_none", "meta": { "source": "국토교통부", "year": 2026 } },
+      { "atom": "income_self", "params": { "max_krw": 50000000 }, "meta": { "source": "국토교통부", "year": 2026 } }
+    ]
+  },
+  "application": {
+    "url": "https://nhuf.molit.go.kr",
+    "selection_method": "선발 없음 — 요건 충족 시 누구나 계좌 개설 가능(추첨·선착순 아님)",
+    "period": "상시 (수시 가입)"
+  }
+}
