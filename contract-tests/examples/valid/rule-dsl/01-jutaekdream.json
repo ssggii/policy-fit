@@ -1,0 +1,7 @@
+{
+  "all_of": [
+    { "atom": "age", "params": { "min": 19, "max": 34 }, "meta": { "source": "국토교통부", "year": 2026 } },
+    { "atom": "housing_none", "meta": { "source": "국토교통부", "year": 2026 } },
+    { "atom": "income_self", "params": { "max_krw": 50000000 }, "meta": { "source": "국토교통부", "year": 2026 } }
+  ]
+}

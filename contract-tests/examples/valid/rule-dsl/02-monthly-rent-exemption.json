@@ -1,0 +1,11 @@
+{
+  "all_of": [
+    { "atom": "age", "params": { "min": 19, "max": 34 } },
+    { "atom": "income_self", "params": { "median_pct": 60 } },
+    { "any_of": [
+      { "atom": "age", "params": { "min": 30 } },
+      { "atom": "household_composition", "params": { "scope": "self", "married": true } },
+      { "atom": "separate_residence" }
+    ] }
+  ]
+}
