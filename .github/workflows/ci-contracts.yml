@@ -3,11 +3,9 @@ on:
   workflow_dispatch:
   push:
     branches: [main]
-    paths: ['contracts/**', 'contract-tests/**', 'DOMAIN.md', '.github/workflows/ci-contracts.yml']
   pull_request:
-    paths: ['contracts/**', 'contract-tests/**', 'DOMAIN.md', '.github/workflows/ci-contracts.yml']
 jobs:
-  validate:
+  contracts:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

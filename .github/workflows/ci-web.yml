@@ -3,11 +3,9 @@ on:
   workflow_dispatch:
   push:
     branches: [main]
-    paths: ['web/**', '.github/workflows/ci-web.yml']
   pull_request:
-    paths: ['web/**', '.github/workflows/ci-web.yml']
 jobs:
-  build:
+  web:
     runs-on: ubuntu-latest
     defaults:
       run:
