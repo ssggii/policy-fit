@@ -91,8 +91,8 @@ Day 0'  다음 계획  반복
 
 Projects 뷰는 API로 생성 불가(UI 전용). 스프린트 확인용 권장 뷰:
 
-- **스프린트 테이블** (Table, Group by: Sprint) — 관리 0, 모든 스프린트가 그룹으로 보임.
-- **현재 스프린트 보드** (Board, Group by: Status, filter `sprint:"Sprint N"`) — 데일리 칸반. 새 스프린트 시작 시 필터를 수동 갱신.
+- **스프린트별** (Table, Group by: Sprint) — 관리 0, 모든 스프린트가 그룹으로 보임.
+- **현재 스프린트** (Board, Group by: Status, filter `sprint:"Sprint N"`) — 데일리 칸반. 새 스프린트 시작 시 필터를 수동 갱신.
 - **백로그** (Table, Group by: Epic, filter `no:sprint`) — 전체 백로그 목록
 
 뷰 없이도 AI가 요청 시 채팅으로 현황을 보고한다.
