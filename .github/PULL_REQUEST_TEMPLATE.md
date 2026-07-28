@@ -37,7 +37,10 @@
 ## 관련 / 스코프
 
 - SPEC 기능: F-  <!-- 커밋 푸터 Refs와 일치 -->
-- 스코프: [ ] backend  [ ] web  [ ] contracts
+- 스코프:
+  - [ ] backend
+  - [ ] web
+  - [ ] contracts
 
 ## 체크리스트 (loop.md 게이트)
 

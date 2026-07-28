@@ -3,7 +3,7 @@ name: ✨ 기능 / 작업
 about: SPEC 기능(F-ID)에 연결되는 기능 추가·작업을 등록합니다
 title: "feat: "
 labels: [feat]
-assignees: []
+assignees: [ssggii]
 ---
 
 ## 작업 내용
