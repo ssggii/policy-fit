@@ -91,7 +91,11 @@ jobs:
           case "$EVENT" in
             issues)
               case "$ACTION" in
-                opened|reopened) set_status "$ISSUE_NUM" "$ST_TODO" ;;
+                opened)
+                  # 이슈 생성 시 assignee를 ssggii로 자동 설정 (1인 개발 — 모든 이슈 본인 담당)
+                  gh issue edit "$ISSUE_NUM" --repo "$OWNER/$REPO" --add-assignee ssggii || true
+                  set_status "$ISSUE_NUM" "$ST_TODO" ;;
+                reopened)        set_status "$ISSUE_NUM" "$ST_TODO" ;;
                 closed)          set_status "$ISSUE_NUM" "$ST_DONE" ;;
               esac ;;
             create)
