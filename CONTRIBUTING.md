@@ -21,9 +21,10 @@
 
 ## 브랜치
 
-- feature 브랜치에서 작업: `type/F-ID-슬러그` (예: `feat/F-003-verdict`, `fix/F-001-skip-logic`)
-- F-ID가 없는 작업은 `chore/...`·`docs/...`.
-- `main`은 직접 커밋하지 않고 **PR로만 병합**한다(원격 연결 후 브랜치 보호 활성).
+- feature 브랜치에서 작업: `type/<이슈#>-<F-ID>-슬러그` (예: `feat/7-F002-beotimmok`)
+  - **이슈 번호는 필수** — GitHub Projects 자동화(`project-automation.yml`)가 브랜치명 앞의 이슈 번호로 보드 아이템을 In Progress로 전환한다.
+  - F-ID가 없는 작업(chore·docs·인프라)은 F-ID를 생략: `chore/23-projects-automation`.
+- `main`은 직접 커밋하지 않고 **PR로만 병합**한다(브랜치 보호 활성).
 
 ### PR merge 후 로컬 동기화 (squash merge)
 
