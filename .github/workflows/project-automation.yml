@@ -1,0 +1,105 @@
+name: project-automation
+# GitHub Projects(v2) 보드 상태 자동전환.
+# - 이슈 열림/재오픈 → Todo (+ 보드 자동 추가)
+# - 브랜치 생성(type/<이슈#>-...) → In Progress
+# - PR 열림/재오픈 → In Review
+# - PR merge → Done
+# - 이슈 닫힘 → Done
+#
+# 기본 GITHUB_TOKEN은 사용자 소유 Projects에 접근 불가 → PAT 시크릿 PROJECTS_TOKEN 필요
+# (Projects: R/W, Issues·PR: R/W, Contents: R). 없으면 잡이 실패한다.
+
+on:
+  issues:
+    types: [opened, reopened, closed]
+  pull_request:
+    types: [opened, reopened, closed]
+  create: {} # 브랜치 생성
+
+env:
+  GH_TOKEN: ${{ secrets.PROJECTS_TOKEN }}
+  OWNER: ssggii
+  REPO: policy-fit
+  PROJECT_ID: PVT_kwHOB-H6j84BeqCp
+  STATUS_FIELD: PVTSSF_lAHOB-H6j84BeqCpzhZCmf8
+  ST_TODO: 3f633c02
+  ST_INPROG: 33cdd7b6
+  ST_REVIEW: 588e371d
+  ST_DONE: 840ec0ec
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 보드 상태 전환
+        env:
+          EVENT: ${{ github.event_name }}
+          ACTION: ${{ github.event.action }}
+          ISSUE_NUM: ${{ github.event.issue.number }}
+          PR_HEAD: ${{ github.event.pull_request.head.ref }}
+          PR_MERGED: ${{ github.event.pull_request.merged }}
+          CREATE_REF: ${{ github.event.ref }}
+          CREATE_TYPE: ${{ github.event.ref_type }}
+        run: |
+          set -euo pipefail
+          if [ -z "${GH_TOKEN:-}" ]; then
+            echo "::error::PROJECTS_TOKEN 시크릿이 없습니다. README/CONTRIBUTING의 PAT 등록 안내 참조."
+            exit 1
+          fi
+
+          # 브랜치명에서 이슈 번호 추출: type/<이슈#>-<F-ID>-슬러그
+          issue_from_branch() { printf '%s' "$1" | grep -oE '/[0-9]+' | head -1 | tr -d '/'; }
+
+          # 이슈의 프로젝트 아이템 id를 얻는다(없으면 보드에 추가).
+          resolve_item() {
+            local num="$1" iid item
+            iid=$(gh api graphql -f query='
+              query($o:String!,$r:String!,$n:Int!){
+                repository(owner:$o,name:$r){ issue(number:$n){ id
+                  projectItems(first:20){ nodes{ id project{ id } } } } } }' \
+              -F o="$OWNER" -F r="$REPO" -F n="$num" \
+              --jq '.data.repository.issue.id')
+            [ -z "$iid" ] && { echo ""; return; }
+            item=$(gh api graphql -f query='
+              query($o:String!,$r:String!,$n:Int!){
+                repository(owner:$o,name:$r){ issue(number:$n){
+                  projectItems(first:20){ nodes{ id project{ id } } } } } }' \
+              -F o="$OWNER" -F r="$REPO" -F n="$num" \
+              --jq ".data.repository.issue.projectItems.nodes[] | select(.project.id==\"$PROJECT_ID\") | .id" | head -1)
+            if [ -z "$item" ]; then
+              item=$(gh api graphql -f query='
+                mutation($p:ID!,$c:ID!){ addProjectV2ItemById(input:{projectId:$p,contentId:$c}){ item{ id } } }' \
+                -F p="$PROJECT_ID" -F c="$iid" --jq '.data.addProjectV2ItemById.item.id')
+            fi
+            printf '%s' "$item"
+          }
+
+          set_status() {
+            local num="$1" opt="$2" item
+            [ -z "$num" ] && { echo "이슈 번호 없음 — skip"; return; }
+            item=$(resolve_item "$num")
+            [ -z "$item" ] && { echo "#$num 아이템 없음 — skip"; return; }
+            gh api graphql -f query='
+              mutation($p:ID!,$i:ID!,$f:ID!,$o:String!){
+                updateProjectV2ItemFieldValue(input:{
+                  projectId:$p,itemId:$i,fieldId:$f,value:{singleSelectOptionId:$o}
+                }){ projectV2Item{ id } } }' \
+              -F p="$PROJECT_ID" -F i="$item" -F f="$STATUS_FIELD" -F o="$opt" >/dev/null
+            echo "#$num → status set"
+          }
+
+          case "$EVENT" in
+            issues)
+              case "$ACTION" in
+                opened|reopened) set_status "$ISSUE_NUM" "$ST_TODO" ;;
+                closed)          set_status "$ISSUE_NUM" "$ST_DONE" ;;
+              esac ;;
+            create)
+              [ "$CREATE_TYPE" = "branch" ] && set_status "$(issue_from_branch "$CREATE_REF")" "$ST_INPROG" ;;
+            pull_request)
+              num="$(issue_from_branch "$PR_HEAD")"
+              case "$ACTION" in
+                opened|reopened) set_status "$num" "$ST_REVIEW" ;;
+                closed) [ "$PR_MERGED" = "true" ] && set_status "$num" "$ST_DONE" || echo "merge 아님 — skip" ;;
+              esac ;;
+          esac
