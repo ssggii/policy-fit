@@ -2,7 +2,7 @@
 name: 🐞 버그 리포트
 about: 동작하지 않거나 예상과 다른 문제를 보고합니다
 title: "bug: "
-labels: [bug]
+labels: [fix]
 assignees: []
 ---
 
