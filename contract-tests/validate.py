@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
-"""계약 검증 — 스키마 메타검증 + 예시 픽스처 검증.
+"""계약 검증 — openapi.yaml 구조 검증 + 스키마 메타검증 + 예시 픽스처 검증.
 
+- contracts/openapi.yaml이 OpenAPI 3.1 스펙에 유효한 문서인지(상대 $ref resolve 포함)
 - contracts/ 의 JSON Schema가 유효한 JSON Schema인지(메타검증)
 - contract-tests/examples/valid/<schema>/*.json  은 반드시 통과
 - contract-tests/examples/invalid/<schema>/*.json 은 반드시 실패
@@ -17,11 +18,14 @@ import sys
 from pathlib import Path
 
 from jsonschema import Draft202012Validator
+from openapi_spec_validator import validate as validate_openapi
+from openapi_spec_validator.readers import read_from_filename
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent
 CONTRACTS = ROOT / "contracts"
 EXAMPLES = HERE / "examples"
+OPENAPI = CONTRACTS / "openapi.yaml"
 
 SCHEMAS = {
     "rule-dsl": CONTRACTS / "rule-dsl.schema.json",
@@ -36,6 +40,15 @@ def fail(msg: str) -> None:
     print(f"FAIL {msg}")
     fails += 1
 
+
+# 0) openapi.yaml 구조 검증 — VerdictResult.verdict가 verdict.schema.json을
+#    상대 $ref로 참조하므로 base_uri를 넘겨 resolve되게 한다.
+try:
+    spec_dict, base_uri = read_from_filename(str(OPENAPI))
+    validate_openapi(spec_dict, base_uri=base_uri)
+    print("OK   openapi: openapi.yaml은 유효한 OpenAPI 3.1 문서")
+except Exception as e:  # noqa: BLE001
+    fail(f"openapi: openapi.yaml 검증 실패 — {e}")
 
 # 1) 스키마 메타검증 + 검증기 준비
 validators = {}
