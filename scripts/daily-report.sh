@@ -63,7 +63,8 @@ def field_values(item):
     }
 
 
-in_progress, in_review, blocked, todo_by_size = [], [], [], {"S": 0, "M": 0, "L": 0}
+in_progress, in_review, blocked, todo_items = [], [], [], []
+todo_by_size = {"S": 0, "M": 0, "L": 0}
 sprint_numbers = {}  # "Sprint N" -> N, 등장한 모든 값(완료 여부 무관)에서 최댓값을 현재 스프린트로 본다
 
 for item in items:
@@ -100,19 +101,21 @@ if current_sprint:
         if fv.get("Sprint") == current_sprint and fv.get("Status") == "Todo":
             size = fv.get("Size", "?")
             todo_by_size[size] = todo_by_size.get(size, 0) + 1
+            todo_items.append((content, size))
 
 
 def line(c):
-    return f"• #{c['number']} {c['title']}"
+    return f"• [#{c['number']}]({c['url']}) {c['title']}"
 
 
 def section(emoji, title, contents):
-    print(f"{emoji} *{title} ({len(contents)})*")
+    print(f"{emoji} {title} ({len(contents)})")
     if contents:
         for c in contents:
             print(line(c))
     else:
         print("없음")
+    print()
     print()
 
 
@@ -126,30 +129,39 @@ if current_sprint:
 else:
     sprint_line = "진행 중인 스프린트 없음"
 
-# 액션 필요한 것(막힌 것 → 리뷰 대기 → 진행 중)을 먼저, 지난 기록(어제 merge)과
-# 용량 요약은 뒤로 배치한다 — Slack에서 알림 미리보기·스크롤 없이 읽을 때 급한 것부터 보이도록.
-print(f"📝 *데일리 진행 보고 — {today}*")
+# 순서: 어제 merge → In Progress → In Review → Blocked → Sprint 남은 ToDo
+# (제목만 볼드 처리, 나머지는 굵게/기울임/백틱 없이 순수 텍스트로 출력)
+print(f"📝 **데일리 진행 보고 — {today}**")
+print()
 print(
-    f"요약: Blocked {len(blocked)} · In Review {len(in_review)} · "
-    f"In Progress {len(in_progress)} · 어제 merge {len(merged)}건 · {sprint_line}"
+    f"> 요약 : 어제 merge {len(merged)}건 · In Progress {len(in_progress)} · "
+    f"In Review {len(in_review)} · Blocked {len(blocked)} · {sprint_line}"
 )
+print()
 print("───")
 print()
 
-section("🚨", "Blocked", blocked)
-section("👀", "In Review", in_review)
-section("💡", "In Progress", in_progress)
-
-print(f"✅ *어제({since_short}) merge ({len(merged)})*")
+print(f"✅ 어제 merge ({len(merged)})")
 if merged:
     for pr in merged:
-        print(f"• #{pr['number']} {pr['title']}")
+        print(f"• [#{pr['number']}]({pr['url']}) {pr['title']}")
 else:
     print("없음")
 print()
+print()
+
+section("💡", "In Progress", in_progress)
+section("👀", "In Review", in_review)
+section("🚨", "Blocked", blocked)
 
 if current_sprint:
-    print(f"📦 *{current_sprint} 남은 Todo — {total_todo}건 ({breakdown})*")
+    print(f"📦 {current_sprint} 남은 ToDo — {total_todo}건")
+    if todo_items:
+        for content, size in todo_items:
+            print(f"• [#{content['number']}]({content['url']}) {content['title']} ({size})")
+    else:
+        print("없음")
 else:
-    print("📦 *진행 중인 스프린트 없음*")
+    print("📦 진행 중인 스프린트 없음")
+print()
 PYEOF
