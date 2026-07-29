@@ -10,6 +10,7 @@ PROJECT_ID="PVT_kwHOB-H6j84BeqCp"
 
 # macOS(BSD date)와 GNU date 양쪽 지원
 SINCE_DATE=$(date -u -v-1d +%Y-%m-%d 2>/dev/null || date -u -d '1 day ago' +%Y-%m-%d)
+TODAY_DATE=$(date -u +%Y-%m-%d)
 
 # 상한(오늘)을 명시하지 않으면 "어제 merge"가 그 이후 실행마다 계속 잡힌다 — 정확히 어제 하루로 고정
 MERGED_JSON=$(gh pr list --repo "$REPO" --state merged \
@@ -41,7 +42,7 @@ query($project: ID!) {
   }
 }' -f project="$PROJECT_ID")
 
-MERGED_JSON="$MERGED_JSON" ITEMS_JSON="$ITEMS_JSON" python3 <<'PYEOF'
+MERGED_JSON="$MERGED_JSON" ITEMS_JSON="$ITEMS_JSON" SINCE_DATE="$SINCE_DATE" TODAY_DATE="$TODAY_DATE" python3 <<'PYEOF'
 import json
 import os
 import re
@@ -102,40 +103,53 @@ if current_sprint:
 
 
 def line(c):
-    return f"  - #{c['number']} {c['title']}"
+    return f"• #{c['number']} {c['title']}"
 
 
-print("📋 데일리 진행 보고")
-print()
-print(f"✅ 어제 merge된 PR ({len(merged)}건)")
-if merged:
-    for pr in merged:
-        print(f"  - #{pr['number']} {pr['title']}")
-else:
-    print("  (없음)")
-print()
-print(f"🔧 In Progress ({len(in_progress)}건)")
-for c in in_progress:
-    print(line(c))
-if not in_progress:
-    print("  (없음)")
-print()
-print(f"👀 In Review 대기 ({len(in_review)}건)")
-for c in in_review:
-    print(line(c))
-if not in_review:
-    print("  (없음)")
-print()
-print(f"🚧 막힌 것 ({len(blocked)}건)")
-for c in blocked:
-    print(line(c))
-if not blocked:
-    print("  (없음)")
-print()
+def section(emoji, title, contents):
+    print(f"{emoji} *{title} ({len(contents)})*")
+    if contents:
+        for c in contents:
+            print(line(c))
+    else:
+        print("없음")
+    print()
+
+
+since_short = os.environ["SINCE_DATE"][5:]  # MM-DD
+today = os.environ["TODAY_DATE"]
+
 if current_sprint:
     total_todo = sum(todo_by_size.values())
-    breakdown = " · ".join(f"{k}{v}" for k, v in todo_by_size.items() if v)
-    print(f"📦 {current_sprint} 남은 Todo: {total_todo}건 ({breakdown or '없음'})")
+    breakdown = " · ".join(f"{k}{v}" for k, v in todo_by_size.items() if v) or "없음"
+    sprint_line = f"{current_sprint} 남은 Todo {total_todo}건"
 else:
-    print("📦 진행 중인 스프린트 없음")
+    sprint_line = "진행 중인 스프린트 없음"
+
+# 액션 필요한 것(막힌 것 → 리뷰 대기 → 진행 중)을 먼저, 지난 기록(어제 merge)과
+# 용량 요약은 뒤로 배치한다 — Slack에서 알림 미리보기·스크롤 없이 읽을 때 급한 것부터 보이도록.
+print(f"📝 *데일리 진행 보고 — {today}*")
+print(
+    f"요약: Blocked {len(blocked)} · In Review {len(in_review)} · "
+    f"In Progress {len(in_progress)} · 어제 merge {len(merged)}건 · {sprint_line}"
+)
+print("───")
+print()
+
+section("🚨", "Blocked", blocked)
+section("👀", "In Review", in_review)
+section("💡", "In Progress", in_progress)
+
+print(f"✅ *어제({since_short}) merge ({len(merged)})*")
+if merged:
+    for pr in merged:
+        print(f"• #{pr['number']} {pr['title']}")
+else:
+    print("없음")
+print()
+
+if current_sprint:
+    print(f"📦 *{current_sprint} 남은 Todo — {total_todo}건 ({breakdown})*")
+else:
+    print("📦 *진행 중인 스프린트 없음*")
 PYEOF
