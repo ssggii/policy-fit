@@ -3,10 +3,12 @@ package dev.youthpolicy.api;
 import dev.youthpolicy.api.dto.AnswerApproxIntDto;
 import dev.youthpolicy.api.dto.AnswerBoolDto;
 import dev.youthpolicy.api.dto.AnswerIntDto;
+import dev.youthpolicy.api.dto.AnswerStringDto;
 import dev.youthpolicy.api.dto.AnswersDto;
 import dev.youthpolicy.domain.atom.AnswerApproxInt;
 import dev.youthpolicy.domain.atom.AnswerBool;
 import dev.youthpolicy.domain.atom.AnswerInt;
+import dev.youthpolicy.domain.atom.AnswerString;
 import dev.youthpolicy.domain.atom.Answers;
 
 /**
@@ -17,12 +19,14 @@ public final class RequestToAnswersMapper {
 
     public Answers toAnswers(AnswersDto dto) {
         if (dto == null) {
-            return new Answers(unknownInt(), unknownBool(), unknownApproxInt());
+            return new Answers(unknownInt(), unknownBool(), unknownApproxInt(), unknownString(), unknownApproxInt());
         }
         return new Answers(
                 toAnswerInt(dto.age()),
                 toAnswerBool(dto.housingNone()),
-                toAnswerApproxInt(dto.incomeSelfMonthlyKrw()));
+                toAnswerApproxInt(dto.incomeSelfMonthlyKrw()),
+                toAnswerString(dto.leaseType()),
+                toAnswerApproxInt(dto.assetSelfKrw()));
     }
 
     private AnswerInt toAnswerInt(AnswerIntDto dto) {
@@ -46,6 +50,13 @@ public final class RequestToAnswersMapper {
         return new AnswerApproxInt(true, Boolean.TRUE.equals(dto.approx()), dto.value());
     }
 
+    private AnswerString toAnswerString(AnswerStringDto dto) {
+        if (dto == null || !Boolean.TRUE.equals(dto.known())) {
+            return unknownString();
+        }
+        return new AnswerString(true, dto.value());
+    }
+
     private AnswerInt unknownInt() {
         return new AnswerInt(false, null);
     }
@@ -56,5 +67,9 @@ public final class RequestToAnswersMapper {
 
     private AnswerApproxInt unknownApproxInt() {
         return new AnswerApproxInt(false, false, null);
+    }
+
+    private AnswerString unknownString() {
+        return new AnswerString(false, null);
     }
 }

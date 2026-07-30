@@ -3,6 +3,7 @@ package dev.youthpolicy.domain.atom.evaluator;
 import dev.youthpolicy.domain.atom.AnswerApproxInt;
 import dev.youthpolicy.domain.atom.AnswerBool;
 import dev.youthpolicy.domain.atom.AnswerInt;
+import dev.youthpolicy.domain.atom.AnswerString;
 import dev.youthpolicy.domain.atom.Answers;
 import dev.youthpolicy.domain.atom.AtomOutcome;
 import dev.youthpolicy.domain.kleene.Trilean;
@@ -40,6 +41,8 @@ class HousingNoneAtomEvaluatorTest {
         return new Answers(
                 new AnswerInt(false, null),
                 new AnswerBool(known, value),
+                new AnswerApproxInt(false, false, null),
+                new AnswerString(false, null),
                 new AnswerApproxInt(false, false, null));
     }
 }

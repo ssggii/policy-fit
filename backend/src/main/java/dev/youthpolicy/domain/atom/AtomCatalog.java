@@ -1,16 +1,19 @@
 package dev.youthpolicy.domain.atom;
 
 import dev.youthpolicy.domain.atom.evaluator.AgeAtomEvaluator;
+import dev.youthpolicy.domain.atom.evaluator.AssetSelfAtomEvaluator;
 import dev.youthpolicy.domain.atom.evaluator.HousingNoneAtomEvaluator;
 import dev.youthpolicy.domain.atom.evaluator.IncomeSelfAtomEvaluator;
+import dev.youthpolicy.domain.atom.evaluator.LeaseTypeAtomEvaluator;
 
 import java.util.Map;
 import java.util.Optional;
 
 /**
  * 원자 카탈로그 — DOMAIN §2.3의 12개 원자 전부를 값 유형·일상어 라벨(F-004)에 매핑한다.
- * Evaluator는 이번 슬라이스(청년 주택드림 청약통장)가 쓰는 3개(age, housing_none, income_self)만
- * 등록한다. household_aggregate 원자는 OutOfScopeClassifier가 사전분류하고,
+ * Evaluator는 지금까지 등록된 정책(청년 주택드림 청약통장·청년전용 버팀목 전세자금대출)이 쓰는
+ * 5개(age, housing_none, lease_type, income_self, asset_self)만 등록한다. household_aggregate 원자는
+ * OutOfScopeClassifier가 사전분류하고,
  * admin_discretion 원자는 RuleEvaluator가 값 유형만으로 항상 unknown을 반환하므로(§3.4)
  * 둘 다 evaluator가 필요 없다.
  *
@@ -53,7 +56,9 @@ public final class AtomCatalog {
     private static final Map<AtomId, AtomEvaluator> EVALUATORS = Map.of(
             AtomId.AGE, new AgeAtomEvaluator(),
             AtomId.HOUSING_NONE, new HousingNoneAtomEvaluator(),
-            AtomId.INCOME_SELF, new IncomeSelfAtomEvaluator());
+            AtomId.LEASE_TYPE, new LeaseTypeAtomEvaluator(),
+            AtomId.INCOME_SELF, new IncomeSelfAtomEvaluator(),
+            AtomId.ASSET_SELF, new AssetSelfAtomEvaluator());
 
     private AtomCatalog() {
     }

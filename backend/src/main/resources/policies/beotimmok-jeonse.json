@@ -1,0 +1,32 @@
+{
+  "id": "beotimmok-jeonse",
+  "name": "청년전용 버팀목 전세자금대출",
+  "rule": {
+    "all_of": [
+      { "atom": "age", "params": { "min": 19, "max": 34 }, "meta": { "source": "주택도시기금", "year": 2026 } },
+      { "atom": "housing_none", "meta": { "source": "주택도시기금", "year": 2026 } },
+      { "atom": "lease_type", "params": { "allowed": ["jeonse"] }, "meta": { "source": "주택도시기금", "year": 2026 } },
+      {
+        "atom": "income_self",
+        "params": { "max_krw": 50000000 },
+        "meta": {
+          "source": "웹 검색으로 부부합산 연 5천만원 이하(미혼은 본인 소득만 해당) 확인 — 1차 출처(HUG·주택도시기금) 대조는 미완, 이슈 #33에서 확정 예정",
+          "year": 2026
+        }
+      },
+      {
+        "atom": "asset_self",
+        "params": { "max_krw": 345000000 },
+        "meta": {
+          "source": "웹 검색 출처 간 3.45억/3.37억(2025년 기준 명시)으로 엇갈림 — 1차 출처 대조 및 2026년 확정값 필요, 이슈 #33에서 확정 예정",
+          "year": 2026
+        }
+      }
+    ]
+  },
+  "application": {
+    "url": "https://enhuf.molit.go.kr",
+    "selection_method": "선발 없음 — 요건 충족 및 대출 심사 통과 시 이용 가능(추첨·선착순 아님)",
+    "period": "상시 신청 가능 — 계약서상 잔금지급일 또는 전입일 중 빠른 날부터 3개월 내"
+  }
+}

@@ -82,6 +82,50 @@ class VerdictsControllerTest {
     }
 
     @Test
+    void beotimmokJeonseEligibleWhenAllAtomsSatisfied() throws Exception {
+        String body = """
+                {
+                  "policy_id": "beotimmok-jeonse",
+                  "answers": {
+                    "age": { "known": true, "value": 28 },
+                    "housing_none": { "known": true, "value": true },
+                    "lease_type": { "known": true, "value": "jeonse" },
+                    "income_self_monthly_krw": { "known": true, "approx": false, "value": 3000000 },
+                    "asset_self_krw": { "known": true, "approx": false, "value": 30000000 }
+                  }
+                }
+                """;
+
+        mockMvc.perform(post("/verdicts").contentType(MediaType.APPLICATION_JSON).content(body))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.policy_id").value("beotimmok-jeonse"))
+                .andExpect(jsonPath("$.verdict.state").value("eligible"))
+                .andExpect(jsonPath("$.reasoning.length()").value(5))
+                .andExpect(jsonPath("$.application.url").exists());
+    }
+
+    @Test
+    void beotimmokJeonseIneligibleWhenLeaseTypeIsNotJeonse() throws Exception {
+        String body = """
+                {
+                  "policy_id": "beotimmok-jeonse",
+                  "answers": {
+                    "age": { "known": true, "value": 28 },
+                    "housing_none": { "known": true, "value": true },
+                    "lease_type": { "known": true, "value": "wolse" },
+                    "income_self_monthly_krw": { "known": true, "approx": false, "value": 3000000 },
+                    "asset_self_krw": { "known": true, "approx": false, "value": 30000000 }
+                  }
+                }
+                """;
+
+        mockMvc.perform(post("/verdicts").contentType(MediaType.APPLICATION_JSON).content(body))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.verdict.state").value("ineligible"))
+                .andExpect(jsonPath("$.application").doesNotExist());
+    }
+
+    @Test
     void badRequestWhenPolicyIdUnknown() throws Exception {
         String body = """
                 {
