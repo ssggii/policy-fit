@@ -201,7 +201,7 @@ unknown은 "참일 수도 거짓일 수도 있어 아직 단정 불가"다. 세 
 | `housing_none` | 없음 (true 요구) | — |
 | `lease_type` | `{allowed:[…]}` | `{"allowed":["jeonse"]}` |
 | `income_self` | `{median_pct}` 또는 `{max_krw}` | `{"median_pct":60}` |
-| `asset_self` | `{max_krw}` | `{"max_krw":34500000}` |
+| `asset_self` | `{max_krw}` | `{"max_krw":345000000}` |
 | `employment` | `{allowed:[…]}` | — |
 | `education` | `{allowed:[…]}` | — |
 | `benefit_overlap` | `{excluded:[policy_id]}` | — |
