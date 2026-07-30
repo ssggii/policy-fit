@@ -1,0 +1,198 @@
+[
+  {
+    "caseId": "baseline-all-known-eligible",
+    "answers": {
+      "age": { "known": true, "value": 28 },
+      "housing_none": { "known": true, "value": true },
+      "lease_type": { "known": true, "value": "jeonse" },
+      "income_self_monthly_krw": { "known": true, "approx": false, "value": 3000000 },
+      "asset_self_krw": { "known": true, "approx": false, "value": 30000000 }
+    },
+    "expectedState": "eligible",
+    "source": "DOMAIN.md §5.2 — age/housing_none/lease_type(전세)/income_self/asset_self 전부 all_of"
+  },
+  {
+    "caseId": "age-19-lower-boundary-eligible",
+    "answers": {
+      "age": { "known": true, "value": 19 },
+      "housing_none": { "known": true, "value": true },
+      "lease_type": { "known": true, "value": "jeonse" },
+      "income_self_monthly_krw": { "known": true, "approx": false, "value": 3000000 },
+      "asset_self_krw": { "known": true, "approx": false, "value": 30000000 }
+    },
+    "expectedState": "eligible",
+    "source": "policies/beotimmok-jeonse.json age params min=19,max=34(jutaek-dream과 동일 연령대 재사용 — 출처 미검증)"
+  },
+  {
+    "caseId": "age-18-below-min-ineligible",
+    "answers": {
+      "age": { "known": true, "value": 18 },
+      "housing_none": { "known": true, "value": true },
+      "lease_type": { "known": true, "value": "jeonse" },
+      "income_self_monthly_krw": { "known": true, "approx": false, "value": 3000000 },
+      "asset_self_krw": { "known": true, "approx": false, "value": 30000000 }
+    },
+    "expectedState": "ineligible",
+    "source": "policies/beotimmok-jeonse.json age params min=19"
+  },
+  {
+    "caseId": "age-34-upper-boundary-eligible",
+    "answers": {
+      "age": { "known": true, "value": 34 },
+      "housing_none": { "known": true, "value": true },
+      "lease_type": { "known": true, "value": "jeonse" },
+      "income_self_monthly_krw": { "known": true, "approx": false, "value": 3000000 },
+      "asset_self_krw": { "known": true, "approx": false, "value": 30000000 }
+    },
+    "expectedState": "eligible",
+    "source": "policies/beotimmok-jeonse.json age params max=34"
+  },
+  {
+    "caseId": "age-35-above-max-ineligible",
+    "answers": {
+      "age": { "known": true, "value": 35 },
+      "housing_none": { "known": true, "value": true },
+      "lease_type": { "known": true, "value": "jeonse" },
+      "income_self_monthly_krw": { "known": true, "approx": false, "value": 3000000 },
+      "asset_self_krw": { "known": true, "approx": false, "value": 30000000 }
+    },
+    "expectedState": "ineligible",
+    "source": "policies/beotimmok-jeonse.json age params max=34"
+  },
+  {
+    "caseId": "housing-owned-ineligible",
+    "answers": {
+      "age": { "known": true, "value": 28 },
+      "housing_none": { "known": true, "value": false },
+      "lease_type": { "known": true, "value": "jeonse" },
+      "income_self_monthly_krw": { "known": true, "approx": false, "value": 3000000 },
+      "asset_self_krw": { "known": true, "approx": false, "value": 30000000 }
+    },
+    "expectedState": "ineligible",
+    "source": "DOMAIN.md §5.2 — housing_none = true 요구(무주택)"
+  },
+  {
+    "caseId": "lease-type-wolse-ineligible",
+    "answers": {
+      "age": { "known": true, "value": 28 },
+      "housing_none": { "known": true, "value": true },
+      "lease_type": { "known": true, "value": "wolse" },
+      "income_self_monthly_krw": { "known": true, "approx": false, "value": 3000000 },
+      "asset_self_krw": { "known": true, "approx": false, "value": 30000000 }
+    },
+    "expectedState": "ineligible",
+    "source": "DOMAIN.md §5.2 — lease_type allowed=[jeonse], 월세는 배제(청년월세 특별지원과 구분되는 지점 — §5.3)"
+  },
+  {
+    "caseId": "lease-type-unknown-needs-review",
+    "answers": {
+      "age": { "known": true, "value": 28 },
+      "housing_none": { "known": true, "value": true },
+      "lease_type": { "known": false },
+      "income_self_monthly_krw": { "known": true, "approx": false, "value": 3000000 },
+      "asset_self_krw": { "known": true, "approx": false, "value": 30000000 }
+    },
+    "expectedState": "needs_review",
+    "expectedUnknownReasons": ["input_uncertain"],
+    "source": "DOMAIN.md §3.1 입력 불확실(모름) → unknown/input_uncertain. 다른 원자가 전부 true라 all_of 결과가 unknown으로 확정된다(§3.3)"
+  },
+  {
+    "caseId": "income-just-under-annual-cap-eligible",
+    "answers": {
+      "age": { "known": true, "value": 28 },
+      "housing_none": { "known": true, "value": true },
+      "lease_type": { "known": true, "value": "jeonse" },
+      "income_self_monthly_krw": { "known": true, "approx": false, "value": 4166666 },
+      "asset_self_krw": { "known": true, "approx": false, "value": 30000000 }
+    },
+    "expectedState": "eligible",
+    "source": "policies/beotimmok-jeonse.json income_self max_krw=50000000 — 웹 검색으로 부부합산 연 5천만원 확인, 1차 출처 대조는 이슈 #33에서 확정 예정. 월→연 ×12 잠정 가정"
+  },
+  {
+    "caseId": "income-just-over-annual-cap-ineligible",
+    "answers": {
+      "age": { "known": true, "value": 28 },
+      "housing_none": { "known": true, "value": true },
+      "lease_type": { "known": true, "value": "jeonse" },
+      "income_self_monthly_krw": { "known": true, "approx": false, "value": 4200000 },
+      "asset_self_krw": { "known": true, "approx": false, "value": 30000000 }
+    },
+    "expectedState": "ineligible",
+    "source": "policies/beotimmok-jeonse.json income_self max_krw=50000000 — 웹 검색으로 부부합산 연 5천만원 확인, 1차 출처 대조는 이슈 #33에서 확정 예정. 월→연 ×12 잠정 가정"
+  },
+  {
+    "caseId": "income-unknown-needs-review",
+    "answers": {
+      "age": { "known": true, "value": 28 },
+      "housing_none": { "known": true, "value": true },
+      "lease_type": { "known": true, "value": "jeonse" },
+      "income_self_monthly_krw": { "known": false },
+      "asset_self_krw": { "known": true, "approx": false, "value": 30000000 }
+    },
+    "expectedState": "needs_review",
+    "expectedUnknownReasons": ["input_uncertain"],
+    "source": "DOMAIN.md §3.1 입력 불확실(모름) → unknown/input_uncertain"
+  },
+  {
+    "caseId": "asset-at-boundary-eligible",
+    "answers": {
+      "age": { "known": true, "value": 28 },
+      "housing_none": { "known": true, "value": true },
+      "lease_type": { "known": true, "value": "jeonse" },
+      "income_self_monthly_krw": { "known": true, "approx": false, "value": 3000000 },
+      "asset_self_krw": { "known": true, "approx": false, "value": 345000000 }
+    },
+    "expectedState": "eligible",
+    "source": "policies/beotimmok-jeonse.json asset_self max_krw=345000000 — 웹 검색 잠정값(출처 간 3.45억/3.37억 불일치), 이슈 #33에서 확정 예정"
+  },
+  {
+    "caseId": "asset-just-over-boundary-ineligible",
+    "answers": {
+      "age": { "known": true, "value": 28 },
+      "housing_none": { "known": true, "value": true },
+      "lease_type": { "known": true, "value": "jeonse" },
+      "income_self_monthly_krw": { "known": true, "approx": false, "value": 3000000 },
+      "asset_self_krw": { "known": true, "approx": false, "value": 345000001 }
+    },
+    "expectedState": "ineligible",
+    "source": "policies/beotimmok-jeonse.json asset_self max_krw=345000000 — 잠정값(이슈 #33에서 확정 예정)"
+  },
+  {
+    "caseId": "asset-approx-needs-review-input-uncertain",
+    "answers": {
+      "age": { "known": true, "value": 28 },
+      "housing_none": { "known": true, "value": true },
+      "lease_type": { "known": true, "value": "jeonse" },
+      "income_self_monthly_krw": { "known": true, "approx": false, "value": 3000000 },
+      "asset_self_krw": { "known": true, "approx": true, "value": 20000000 }
+    },
+    "expectedState": "needs_review",
+    "expectedUnknownReasons": ["input_uncertain"],
+    "source": "DOMAIN.md §3.4 — self(느슨) 원자도 approx=true는 항상 unknown 처리(자동 해소 금지)"
+  },
+  {
+    "caseId": "asset-unknown-needs-review",
+    "answers": {
+      "age": { "known": true, "value": 28 },
+      "housing_none": { "known": true, "value": true },
+      "lease_type": { "known": true, "value": "jeonse" },
+      "income_self_monthly_krw": { "known": true, "approx": false, "value": 3000000 },
+      "asset_self_krw": { "known": false }
+    },
+    "expectedState": "needs_review",
+    "expectedUnknownReasons": ["input_uncertain"],
+    "source": "DOMAIN.md §2.3 asset_self — 모름 허용 → unknown"
+  },
+  {
+    "caseId": "age-false-lease-type-unknown-ineligible",
+    "answers": {
+      "age": { "known": true, "value": 10 },
+      "housing_none": { "known": true, "value": true },
+      "lease_type": { "known": false },
+      "income_self_monthly_krw": { "known": true, "approx": false, "value": 3000000 },
+      "asset_self_krw": { "known": true, "approx": false, "value": 30000000 }
+    },
+    "expectedState": "ineligible",
+    "source": "DOMAIN.md §3.5 — all_of(false, unknown) → false(이미 확정된 false가 unknown을 흡수)"
+  }
+]
