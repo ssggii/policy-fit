@@ -34,7 +34,7 @@ components:
       properties:
         policy_id:
           type: string
-          enum: [jutaek-dream]   # 정책 추가마다 enum 확장 = 자연스러운 게이트 C 지점
+          enum: [jutaek-dream, beotimmok-jeonse]   # 정책 추가마다 enum 확장 = 자연스러운 게이트 C 지점
         answers:
           type: object
           additionalProperties: false
@@ -42,6 +42,8 @@ components:
             age: { $ref: '#/components/schemas/AnswerInt' }
             housing_none: { $ref: '#/components/schemas/AnswerBool' }
             income_self_monthly_krw: { $ref: '#/components/schemas/AnswerApproxInt' }
+            lease_type: { $ref: '#/components/schemas/AnswerString' }
+            asset_self_krw: { $ref: '#/components/schemas/AnswerApproxInt' }
     AnswerInt:
       type: object
       additionalProperties: false
@@ -64,6 +66,13 @@ components:
         known: { type: boolean }
         approx: { type: boolean }
         value: { type: integer }
+    AnswerString:
+        type: object
+        additionalProperties: false
+        required: [known]
+        properties:
+          known: { type: boolean }
+          value: { type: string }
     VerdictResult:
       type: object
       additionalProperties: false
