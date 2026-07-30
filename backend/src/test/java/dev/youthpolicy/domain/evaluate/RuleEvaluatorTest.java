@@ -3,6 +3,7 @@ package dev.youthpolicy.domain.evaluate;
 import dev.youthpolicy.domain.atom.AnswerApproxInt;
 import dev.youthpolicy.domain.atom.AnswerBool;
 import dev.youthpolicy.domain.atom.AnswerInt;
+import dev.youthpolicy.domain.atom.AnswerString;
 import dev.youthpolicy.domain.atom.Answers;
 import dev.youthpolicy.domain.atom.AtomId;
 import dev.youthpolicy.domain.kleene.Trilean;
@@ -75,7 +76,12 @@ class RuleEvaluatorTest {
     }
 
     private Answers answers(AnswerInt age, AnswerApproxInt income) {
-        return new Answers(age, new AnswerBool(false, null), income);
+        return new Answers(
+                age,
+                new AnswerBool(false, null),
+                income,
+                new AnswerString(false, null),
+                new AnswerApproxInt(false, false, null));
     }
 
     private AnswerInt knownAge(int value) {
