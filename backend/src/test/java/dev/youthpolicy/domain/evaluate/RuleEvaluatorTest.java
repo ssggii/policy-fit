@@ -8,6 +8,9 @@ import dev.youthpolicy.domain.atom.Answers;
 import dev.youthpolicy.domain.atom.AtomId;
 import dev.youthpolicy.domain.kleene.Trilean;
 import dev.youthpolicy.domain.rule.RuleNode;
+import dev.youthpolicy.domain.verdict.UnknownReason;
+import dev.youthpolicy.domain.verdict.Verdict;
+import dev.youthpolicy.domain.verdict.VerdictMapper;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -63,6 +66,67 @@ class RuleEvaluatorTest {
         Answers answers = answers(unknownAge(), knownIncome(10_000_000)); // 연 1.2억원 > 5천만원
 
         assertThat(evaluator.evaluate(rule, answers).value()).isEqualTo(Trilean.UNKNOWN);
+    }
+
+    @Test
+    void allOf_withNestedAnyOfAbsorbingUnknown_excludesAbsorbedAtomFromContributing() {
+        // any_of(income_self=true, separate_residence=unknown) → true(흡수) 그대로 all_of의 age=unknown과 조합되면
+        // 전체는 unknown이지만, 흡수된 separate_residence의 unknown은 결과에 기여하지 않았으므로 제외돼야 한다(#8).
+        RuleNode rule = new RuleNode.AllOf(List.of(
+                new RuleNode.AnyOf(List.of(INCOME_SELF_50M, SEPARATE_RESIDENCE)),
+                AGE_19_34));
+        Answers answers = answers(unknownAge(), knownIncome(1_000_000)); // 연 1,200만원 <= 5천만원(true), 나이 모름
+
+        RuleEvaluationResult result = evaluator.evaluate(rule, answers);
+
+        assertThat(result.value()).isEqualTo(Trilean.UNKNOWN);
+        assertThat(result.atomEvaluations())
+                .as("reasoning(F-004)에는 흡수 여부와 무관하게 평가된 원자가 전부 남아야 한다")
+                .hasSize(3);
+        assertThat(result.contributingEvaluations())
+                .extracting(evaluation -> evaluation.atomRef().atom())
+                .as("age만 needs_review를 실제로 결정했고, income_self=true에 흡수된 separate_residence는 무관하다")
+                .containsExactly(AtomId.AGE);
+
+        Verdict verdict = VerdictMapper.toVerdict(result.value(), result.contributingEvaluations());
+        assertThat(verdict.unknownReasons()).containsExactly(UnknownReason.INPUT_UNCERTAIN);
+    }
+
+    @Test
+    void anyOf_withNestedAllOfAbsorbingUnknown_excludesAbsorbedAtomFromContributing() {
+        // all_of(income_self=false, separate_residence=unknown) → false(흡수) 그대로 any_of의 age=unknown과 조합되면
+        // 전체는 unknown이지만, 흡수된 separate_residence의 unknown은 결과에 기여하지 않았으므로 제외돼야 한다.
+        RuleNode rule = new RuleNode.AnyOf(List.of(
+                new RuleNode.AllOf(List.of(INCOME_SELF_50M, SEPARATE_RESIDENCE)),
+                AGE_19_34));
+        Answers answers = answers(unknownAge(), knownIncome(10_000_000)); // 연 1.2억원 > 5천만원(false), 나이 모름
+
+        RuleEvaluationResult result = evaluator.evaluate(rule, answers);
+
+        assertThat(result.value()).isEqualTo(Trilean.UNKNOWN);
+        assertThat(result.contributingEvaluations())
+                .extracting(evaluation -> evaluation.atomRef().atom())
+                .as("age만 needs_review를 실제로 결정했고, income_self=false에 흡수된 separate_residence는 무관하다")
+                .containsExactly(AtomId.AGE);
+    }
+
+    @Test
+    void not_overNestedAbsorption_passesContributingThroughUnchanged() {
+        // not(any_of(income_self=false, separate_residence=unknown))의 any_of는 income_self=false가 흡수되고
+        // separate_residence의 unknown만 남는다. not은 값만 뒤집을 뿐 그 책임 원자 집합은 그대로 전달해야 한다.
+        RuleNode rule = new RuleNode.AllOf(List.of(
+                new RuleNode.Not(new RuleNode.AnyOf(List.of(INCOME_SELF_50M, SEPARATE_RESIDENCE))),
+                AGE_19_34));
+        Answers answers = answers(unknownAge(), knownIncome(10_000_000)); // 연 1.2억원 > 5천만원(false), 나이 모름
+
+        RuleEvaluationResult result = evaluator.evaluate(rule, answers);
+
+        assertThat(result.value()).isEqualTo(Trilean.UNKNOWN);
+        assertThat(result.contributingEvaluations())
+                .extracting(evaluation -> evaluation.atomRef().atom())
+                .as("not 안쪽에서 income_self=false에 흡수된 원자는 없고, separate_residence(any_of의 unknown 유일 책임)와"
+                        + " age가 함께 최종 unknown을 결정한다")
+                .containsExactlyInAnyOrder(AtomId.SEPARATE_RESIDENCE, AtomId.AGE);
     }
 
     @Test
