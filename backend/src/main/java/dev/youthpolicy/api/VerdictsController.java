@@ -63,7 +63,7 @@ public class VerdictsController {
 
         Answers answers = requestToAnswersMapper.toAnswers(request.answers());
         RuleEvaluationResult result = ruleEvaluator.evaluate(policy.rule(), answers);
-        Verdict verdict = VerdictMapper.toVerdict(result.value(), result.atomEvaluations());
+        Verdict verdict = VerdictMapper.toVerdict(result.value(), result.contributingEvaluations());
         return ResponseEntity.ok(toDto(policy, verdict, result.atomEvaluations()));
     }
 

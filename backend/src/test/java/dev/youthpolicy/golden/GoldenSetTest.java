@@ -73,7 +73,7 @@ class GoldenSetTest {
 
         Answers answers = ANSWERS_MAPPER.toAnswers(testCase.answers());
         RuleEvaluationResult result = RULE_EVALUATOR.evaluate(policy.rule(), answers);
-        Verdict verdict = VerdictMapper.toVerdict(result.value(), result.atomEvaluations());
+        Verdict verdict = VerdictMapper.toVerdict(result.value(), result.contributingEvaluations());
 
         assertThat(verdict.state().wireValue())
                 .as("policy=%s case=%s source=%s", policyId, testCase.caseId(), testCase.source())

@@ -16,17 +16,22 @@ public final class VerdictMapper {
     private VerdictMapper() {
     }
 
-    public static Verdict toVerdict(Trilean combined, List<AtomEvaluation> atomEvaluations) {
+    /**
+     * @param contributingEvaluations combined 값을 실제로 결정한(흡수되지 않은) 원자 평가만
+     *                                 — {@link dev.youthpolicy.domain.evaluate.RuleEvaluationResult#contributingEvaluations()}.
+     *                                 흡수된 원자(예: any_of에서 true인 형제에 흡수된 unknown)는 여기 없어야 한다.
+     */
+    public static Verdict toVerdict(Trilean combined, List<AtomEvaluation> contributingEvaluations) {
         return switch (combined) {
             case TRUE -> Verdict.eligible();
             case FALSE -> Verdict.ineligible();
-            case UNKNOWN -> Verdict.needsReview(collectUnknownReasons(atomEvaluations));
+            case UNKNOWN -> Verdict.needsReview(collectUnknownReasons(contributingEvaluations));
         };
     }
 
-    private static List<UnknownReason> collectUnknownReasons(List<AtomEvaluation> atomEvaluations) {
+    private static List<UnknownReason> collectUnknownReasons(List<AtomEvaluation> contributingEvaluations) {
         Set<UnknownReason> reasons = new LinkedHashSet<>();
-        for (AtomEvaluation evaluation : atomEvaluations) {
+        for (AtomEvaluation evaluation : contributingEvaluations) {
             if (evaluation.outcome().trilean() == Trilean.UNKNOWN) {
                 reasons.add(evaluation.outcome().unknownReason());
             }
