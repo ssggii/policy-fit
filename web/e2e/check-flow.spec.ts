@@ -26,8 +26,8 @@ async function answerAgeUnknown(page: import("@playwright/test").Page) {
 }
 
 async function answerHousingNone(page: import("@playwright/test").Page) {
-  await expect(page.getByText("지금 본인 이름으로 된 집을 갖고 있나요?")).toBeVisible();
-  await page.getByRole("button", { name: "아니요, 없어요" }).click();
+  await expect(page.getByText("지금 본인 이름으로 된 집이 없으신가요?")).toBeVisible();
+  await page.getByRole("button", { name: "네, 없어요" }).click();
   await page.getByRole("button", { name: "다음" }).click();
 }
 

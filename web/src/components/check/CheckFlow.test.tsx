@@ -37,8 +37,8 @@ describe("CheckFlow", () => {
     expect(screen.getByText("나이가 어떻게 되세요?")).toBeInTheDocument();
     await answerAge(user, "28");
 
-    expect(screen.getByText("지금 본인 이름으로 된 집을 갖고 있나요?")).toBeInTheDocument();
-    await user.click(screen.getByRole("button", { name: "아니요, 없어요" }));
+    expect(screen.getByText("지금 본인 이름으로 된 집이 없으신가요?")).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "네, 없어요" }));
     await user.click(screen.getByRole("button", { name: "다음" }));
 
     expect(screen.getByText("본인의 월 소득은 얼마인가요?")).toBeInTheDocument();
@@ -50,7 +50,7 @@ describe("CheckFlow", () => {
     render(<CheckFlow />);
 
     await answerAge(user, "28");
-    await user.click(screen.getByRole("button", { name: "아니요, 없어요" }));
+    await user.click(screen.getByRole("button", { name: "네, 없어요" }));
     await user.click(screen.getByRole("button", { name: "다음" }));
     await user.type(screen.getByRole("spinbutton"), "3000000");
     await user.click(screen.getByRole("button", { name: "다음" }));
@@ -74,7 +74,7 @@ describe("CheckFlow", () => {
     render(<CheckFlow />);
 
     await answerAge(user, "28");
-    await user.click(screen.getByRole("button", { name: "아니요, 없어요" }));
+    await user.click(screen.getByRole("button", { name: "네, 없어요" }));
     await user.click(screen.getByRole("button", { name: "다음" }));
     await user.type(screen.getByRole("spinbutton"), "3000000");
     await user.click(screen.getByRole("button", { name: "다음" }));
@@ -87,7 +87,7 @@ describe("CheckFlow", () => {
     render(<CheckFlow />);
 
     await answerAge(user, "28");
-    expect(screen.getByText("지금 본인 이름으로 된 집을 갖고 있나요?")).toBeInTheDocument();
+    expect(screen.getByText("지금 본인 이름으로 된 집이 없으신가요?")).toBeInTheDocument();
 
     await user.click(screen.getByRole("button", { name: "이전 질문으로" }));
     expect(screen.getByText("나이가 어떻게 되세요?")).toBeInTheDocument();

@@ -48,10 +48,10 @@ export const QUESTIONS: Question[] = [
   {
     key: "housing_none",
     type: "bool",
-    label: "지금 본인 이름으로 된 집을 갖고 있나요?",
+    label: "지금 본인 이름으로 된 집이 없으신가요?",
     helper: "전세나 월세로 사는 건 '집이 없음'에 해당해요.",
-    trueLabel: "아니요, 없어요",
-    falseLabel: "네, 있어요",
+    trueLabel: "네, 없어요",
+    falseLabel: "아니요, 있어요",
   },
   {
     key: "income_self",
