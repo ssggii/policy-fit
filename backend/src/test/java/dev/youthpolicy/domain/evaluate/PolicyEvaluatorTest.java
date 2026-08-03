@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * PolicyEvaluator — 정적 out_of_scope + base rule + 범위 게이트(ADR-0005 D5)의 조립·우선순위.
@@ -103,6 +104,26 @@ class PolicyEvaluatorTest {
                 answers(knownAge(32), unknownIncome(), unknownMarried()));
         assertThat(e.verdict().state()).isEqualTo(VerdictState.NEEDS_REVIEW);
         assertThat(e.verdict().unknownReasons()).containsExactly(UnknownReason.INPUT_UNCERTAIN);
+    }
+
+    @Test
+    void gated_baseUnknown_gateUnknown_needsReview() {
+        // 소득 '모름'(base UNKNOWN) + 혼인 '모름'(gate UNKNOWN) → needs_review. 두 사유가 모두
+        // input_uncertain이라 dedup되어 1개.
+        PolicyEvaluation e = evaluator.evaluate(BASE_AGE_INCOME, GATE,
+                answers(knownAge(26), unknownIncome(), unknownMarried()));
+        assertThat(e.verdict().state()).isEqualTo(VerdictState.NEEDS_REVIEW);
+        assertThat(e.verdict().unknownReasons()).containsExactly(UnknownReason.INPUT_UNCERTAIN);
+    }
+
+    @Test
+    void gated_householdAggregateInGate_failsLoud() {
+        // 게이트에 household_aggregate 원자가 들어가면 RuleEvaluator가 fail-loud로 막는다
+        // (정적 분류는 base rule에만 적용되므로 게이트는 런타임 방어에 의존 — ADR-0003 D3/D4).
+        RuleNode aggregateGate = anyOf(atom(AtomId.INCOME_HOUSEHOLD, Map.of()));
+        assertThatThrownBy(() -> evaluator.evaluate(BASE_AGE, aggregateGate,
+                answers(knownAge(28), unknownIncome(), unknownMarried())))
+                .isInstanceOf(IllegalStateException.class);
     }
 
     // ── 정적 out_of_scope(D3)는 게이트 유무와 무관하게 우선 ──────────────

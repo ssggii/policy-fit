@@ -6,3 +6,4 @@
 | 날짜 | 게이트 | 사유 | 작업 | 참고 |
 |---|---|---|---|---|
 | 2026-07-27 | 3 | `IncomeSelfAtomEvaluator`가 `approx=true`를 DOMAIN §3.4를 위반해 `boundary`로 태깅(실제는 `input_uncertain`) — 코드 주석도 "DOMAIN 확정 규칙"이라 잘못 표기 | 백엔드 판정 엔진, 청년 주택드림 청약통장 (F-003) | consistency-reviewer가 발견, 같은 세션에서 즉시 수정 (커밋 `7b9909d`) |
+| 2026-08-03 | C | freeze 훅이 `contracts/openapi.yaml`(married 필드·enum 확장)의 에이전트 직접 편집을 차단 — 계약 변경은 사람 승인·편집 필요 | 청년월세 범위 게이트 (F-003/F-007, #10) | 사람이 검토 포인트 승인 후 직접 편집해 해소, 에이전트가 diff 정합성 검증 |
