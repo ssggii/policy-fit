@@ -126,6 +126,72 @@ class VerdictsControllerTest {
     }
 
     @Test
+    void wolseEligibleWhenMarriedUnder30() throws Exception {
+        String body = """
+                {
+                  "policy_id": "cheongnyeon-wolse",
+                  "answers": {
+                    "age": { "known": true, "value": 26 },
+                    "housing_none": { "known": true, "value": true },
+                    "lease_type": { "known": true, "value": "wolse" },
+                    "income_self_monthly_krw": { "known": true, "approx": false, "value": 1500000 },
+                    "married": { "known": true, "value": true }
+                  }
+                }
+                """;
+
+        mockMvc.perform(post("/verdicts").contentType(MediaType.APPLICATION_JSON).content(body))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.verdict.state").value("eligible"))
+                .andExpect(jsonPath("$.reasoning.length()").value(4)) // 자격 요건(base)만 — 게이트 원자 제외
+                .andExpect(jsonPath("$.application.url").exists());
+    }
+
+    @Test
+    void wolseOutOfScopeWhenUnder30Single_applicationOmitted() throws Exception {
+        String body = """
+                {
+                  "policy_id": "cheongnyeon-wolse",
+                  "answers": {
+                    "age": { "known": true, "value": 26 },
+                    "housing_none": { "known": true, "value": true },
+                    "lease_type": { "known": true, "value": "wolse" },
+                    "income_self_monthly_krw": { "known": true, "approx": false, "value": 1500000 },
+                    "married": { "known": true, "value": false }
+                  }
+                }
+                """;
+
+        mockMvc.perform(post("/verdicts").contentType(MediaType.APPLICATION_JSON).content(body))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.verdict.state").value("out_of_scope"))
+                .andExpect(jsonPath("$.reasoning.length()").value(0))
+                .andExpect(jsonPath("$.application").doesNotExist());
+    }
+
+    @Test
+    void wolseNeedsReviewWhenMarriedUnknown() throws Exception {
+        String body = """
+                {
+                  "policy_id": "cheongnyeon-wolse",
+                  "answers": {
+                    "age": { "known": true, "value": 26 },
+                    "housing_none": { "known": true, "value": true },
+                    "lease_type": { "known": true, "value": "wolse" },
+                    "income_self_monthly_krw": { "known": true, "approx": false, "value": 1500000 },
+                    "married": { "known": false }
+                  }
+                }
+                """;
+
+        mockMvc.perform(post("/verdicts").contentType(MediaType.APPLICATION_JSON).content(body))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.verdict.state").value("needs_review"))
+                .andExpect(jsonPath("$.verdict.unknown_reasons[0]").value("input_uncertain"))
+                .andExpect(jsonPath("$.application").exists());
+    }
+
+    @Test
     void badRequestWhenPolicyIdUnknown() throws Exception {
         String body = """
                 {

@@ -22,7 +22,8 @@ import java.util.stream.Collectors;
 public final class PolicyCatalog {
 
     private static final List<String> RESOURCE_PATHS =
-            List.of("policies/jutaek-dream.json", "policies/beotimmok-jeonse.json");
+            List.of("policies/jutaek-dream.json", "policies/beotimmok-jeonse.json",
+                    "policies/cheongnyeon-wolse.json");
 
     private final Map<String, PolicyRecord> policiesById;
 

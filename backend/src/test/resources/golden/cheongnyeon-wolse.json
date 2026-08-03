@@ -1,0 +1,100 @@
+[
+  {
+    "caseId": "married-under30-eligible",
+    "answers": {
+      "age": { "known": true, "value": 26 },
+      "housing_none": { "known": true, "value": true },
+      "lease_type": { "known": true, "value": "wolse" },
+      "income_self_monthly_krw": { "known": true, "approx": false, "value": 1500000 },
+      "married": { "known": true, "value": true }
+    },
+    "expectedState": "eligible",
+    "source": "혼인 면제 성립(gate TRUE) — DOMAIN §5.3, ADR-0005 D5"
+  },
+  {
+    "caseId": "age30plus-single-eligible",
+    "answers": {
+      "age": { "known": true, "value": 31 },
+      "housing_none": { "known": true, "value": true },
+      "lease_type": { "known": true, "value": "wolse" },
+      "income_self_monthly_krw": { "known": true, "approx": false, "value": 1500000 },
+      "married": { "known": true, "value": false }
+    },
+    "expectedState": "eligible",
+    "source": "만 30세 이상 면제 성립(gate TRUE) — DOMAIN §5.3, ADR-0005 D5"
+  },
+  {
+    "caseId": "under30-single-outofscope",
+    "answers": {
+      "age": { "known": true, "value": 26 },
+      "housing_none": { "known": true, "value": true },
+      "lease_type": { "known": true, "value": "wolse" },
+      "income_self_monthly_krw": { "known": true, "approx": false, "value": 1500000 },
+      "married": { "known": true, "value": false }
+    },
+    "expectedState": "out_of_scope",
+    "source": "30세 미만·미혼(gate FALSE) → 원가구 소득/행정재량 확인 필요 → 자가판정 불가 — ADR-0005 D5 핵심"
+  },
+  {
+    "caseId": "under30-married-unknown-needsreview",
+    "answers": {
+      "age": { "known": true, "value": 26 },
+      "housing_none": { "known": true, "value": true },
+      "lease_type": { "known": true, "value": "wolse" },
+      "income_self_monthly_krw": { "known": true, "approx": false, "value": 1500000 },
+      "married": { "known": false }
+    },
+    "expectedState": "needs_review",
+    "expectedUnknownReasons": ["input_uncertain"],
+    "source": "혼인 여부 '모름'(gate UNKNOWN) → 확인하면 판정 — DOMAIN §5.3, ADR-0005 D5"
+  },
+  {
+    "caseId": "under30-married-income-approx-needsreview",
+    "answers": {
+      "age": { "known": true, "value": 26 },
+      "housing_none": { "known": true, "value": true },
+      "lease_type": { "known": true, "value": "wolse" },
+      "income_self_monthly_krw": { "known": true, "approx": true, "value": 1500000 },
+      "married": { "known": true, "value": true }
+    },
+    "expectedState": "needs_review",
+    "expectedUnknownReasons": ["input_uncertain"],
+    "source": "혼인으로 gate TRUE지만 소득 '대략'(base UNKNOWN) → needs_review"
+  },
+  {
+    "caseId": "age-below-min-ineligible",
+    "answers": {
+      "age": { "known": true, "value": 18 },
+      "housing_none": { "known": true, "value": true },
+      "lease_type": { "known": true, "value": "wolse" },
+      "income_self_monthly_krw": { "known": true, "approx": false, "value": 1500000 },
+      "married": { "known": true, "value": true }
+    },
+    "expectedState": "ineligible",
+    "source": "만 18세 base 탈락은 gate(혼인 TRUE)보다 우선 — ADR-0005 D5 우선순위"
+  },
+  {
+    "caseId": "income-over-ineligible",
+    "answers": {
+      "age": { "known": true, "value": 26 },
+      "housing_none": { "known": true, "value": true },
+      "lease_type": { "known": true, "value": "wolse" },
+      "income_self_monthly_krw": { "known": true, "approx": false, "value": 3000000 },
+      "married": { "known": true, "value": true }
+    },
+    "expectedState": "ineligible",
+    "source": "본인 소득 초과 base 탈락(연 3600만 > 근사 2580만) — gate보다 우선"
+  },
+  {
+    "caseId": "lease-jeonse-ineligible",
+    "answers": {
+      "age": { "known": true, "value": 26 },
+      "housing_none": { "known": true, "value": true },
+      "lease_type": { "known": true, "value": "jeonse" },
+      "income_self_monthly_krw": { "known": true, "approx": false, "value": 1500000 },
+      "married": { "known": true, "value": true }
+    },
+    "expectedState": "ineligible",
+    "source": "월세 아닌 전세 → 임차형태 미충족 base 탈락"
+  }
+]
