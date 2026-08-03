@@ -50,11 +50,20 @@ public final class PolicyCatalog {
             String id = root.path("id").asString(null);
             String name = root.path("name").asString(null);
             RuleNode rule = RuleDslParser.parse(root.get("rule"));
+            RuleNode outOfScopeGate = parseOptionalRule(root.get("out_of_scope_gate"));
             PolicyApplication application = parseApplication(root.get("application"));
-            return new PolicyRecord(id, name, rule, application);
+            return new PolicyRecord(id, name, rule, outOfScopeGate, application);
         } catch (IOException e) {
             throw new IllegalStateException("정책 리소스를 읽는 중 오류가 발생했습니다: " + classpathResource, e);
         }
+    }
+
+    /** 선택적 Rule DSL 트리(out_of_scope_gate, ADR-0005 D5). 없으면 null. */
+    private static RuleNode parseOptionalRule(JsonNode node) {
+        if (node == null || node.isMissingNode() || node.isNull()) {
+            return null;
+        }
+        return RuleDslParser.parse(node);
     }
 
     private static PolicyApplication parseApplication(JsonNode node) {

@@ -19,4 +19,26 @@ public final class ParamsUtil {
         }
         return Optional.empty();
     }
+
+    public static Optional<String> getString(Map<String, Object> params, String key) {
+        if (params == null) {
+            return Optional.empty();
+        }
+        Object value = params.get(key);
+        if (value instanceof String string) {
+            return Optional.of(string);
+        }
+        return Optional.empty();
+    }
+
+    public static Optional<Boolean> getBoolean(Map<String, Object> params, String key) {
+        if (params == null) {
+            return Optional.empty();
+        }
+        Object value = params.get(key);
+        if (value instanceof Boolean bool) {
+            return Optional.of(bool);
+        }
+        return Optional.empty();
+    }
 }
