@@ -55,6 +55,7 @@ class IncomeSelfAtomEvaluatorTest {
                 new AnswerBool(false, null),
                 new AnswerApproxInt(known, approx, value),
                 new AnswerString(false, null),
-                new AnswerApproxInt(false, false, null));
+                new AnswerApproxInt(false, false, null),
+                new AnswerBool(false, null));
     }
 }

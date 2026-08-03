@@ -19,14 +19,16 @@ public final class RequestToAnswersMapper {
 
     public Answers toAnswers(AnswersDto dto) {
         if (dto == null) {
-            return new Answers(unknownInt(), unknownBool(), unknownApproxInt(), unknownString(), unknownApproxInt());
+            return new Answers(unknownInt(), unknownBool(), unknownApproxInt(), unknownString(), unknownApproxInt(),
+                    unknownBool());
         }
         return new Answers(
                 toAnswerInt(dto.age()),
                 toAnswerBool(dto.housingNone()),
                 toAnswerApproxInt(dto.incomeSelfMonthlyKrw()),
                 toAnswerString(dto.leaseType()),
-                toAnswerApproxInt(dto.assetSelfKrw()));
+                toAnswerApproxInt(dto.assetSelfKrw()),
+                toAnswerBool(dto.married()));
     }
 
     private AnswerInt toAnswerInt(AnswerIntDto dto) {

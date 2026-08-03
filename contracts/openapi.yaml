@@ -34,7 +34,7 @@ components:
       properties:
         policy_id:
           type: string
-          enum: [jutaek-dream, beotimmok-jeonse]   # 정책 추가마다 enum 확장 = 자연스러운 게이트 C 지점
+          enum: [jutaek-dream, beotimmok-jeonse, cheongnyeon-wolse]   # 정책 추가마다 enum 확장 = 자연스러운 게이트 C 지점
         answers:
           type: object
           additionalProperties: false
@@ -44,6 +44,7 @@ components:
             income_self_monthly_krw: { $ref: '#/components/schemas/AnswerApproxInt' }
             lease_type: { $ref: '#/components/schemas/AnswerString' }
             asset_self_krw: { $ref: '#/components/schemas/AnswerApproxInt' }
+            married: { $ref: '#/components/schemas/AnswerBool' }   # 청년월세 면제 게이트(ADR-0005 D5)
     AnswerInt:
       type: object
       additionalProperties: false

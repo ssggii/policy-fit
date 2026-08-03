@@ -46,6 +46,7 @@ class AgeAtomEvaluatorTest {
                 new AnswerBool(false, null),
                 new AnswerApproxInt(false, false, null),
                 new AnswerString(false, null),
-                new AnswerApproxInt(false, false, null));
+                new AnswerApproxInt(false, false, null),
+                new AnswerBool(false, null));
     }
 }
