@@ -145,7 +145,8 @@ class RuleEvaluatorTest {
                 new AnswerBool(false, null),
                 income,
                 new AnswerString(false, null),
-                new AnswerApproxInt(false, false, null));
+                new AnswerApproxInt(false, false, null),
+                new AnswerBool(false, null));
     }
 
     private AnswerInt knownAge(int value) {

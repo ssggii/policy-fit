@@ -60,6 +60,7 @@ class AssetSelfAtomEvaluatorTest {
                 new AnswerBool(false, null),
                 new AnswerApproxInt(false, false, null),
                 new AnswerString(false, null),
-                new AnswerApproxInt(known, approx, value));
+                new AnswerApproxInt(known, approx, value),
+                new AnswerBool(false, null));
     }
 }

@@ -8,11 +8,9 @@ import dev.youthpolicy.api.dto.VerdictResultDto;
 import dev.youthpolicy.domain.atom.AtomCatalog;
 import dev.youthpolicy.domain.atom.Answers;
 import dev.youthpolicy.domain.evaluate.AtomEvaluation;
-import dev.youthpolicy.domain.evaluate.RuleEvaluationResult;
-import dev.youthpolicy.domain.evaluate.RuleEvaluator;
-import dev.youthpolicy.domain.scope.OutOfScopeClassifier;
+import dev.youthpolicy.domain.evaluate.PolicyEvaluation;
+import dev.youthpolicy.domain.evaluate.PolicyEvaluator;
 import dev.youthpolicy.domain.verdict.Verdict;
-import dev.youthpolicy.domain.verdict.VerdictMapper;
 import dev.youthpolicy.domain.verdict.VerdictState;
 import dev.youthpolicy.policy.PolicyApplication;
 import dev.youthpolicy.policy.PolicyCatalog;
@@ -37,17 +35,14 @@ import java.util.List;
 public class VerdictsController {
 
     private final PolicyCatalog policyCatalog;
-    private final OutOfScopeClassifier outOfScopeClassifier;
-    private final RuleEvaluator ruleEvaluator;
+    private final PolicyEvaluator policyEvaluator;
     private final RequestToAnswersMapper requestToAnswersMapper;
 
     public VerdictsController(PolicyCatalog policyCatalog,
-                               OutOfScopeClassifier outOfScopeClassifier,
-                               RuleEvaluator ruleEvaluator,
+                               PolicyEvaluator policyEvaluator,
                                RequestToAnswersMapper requestToAnswersMapper) {
         this.policyCatalog = policyCatalog;
-        this.outOfScopeClassifier = outOfScopeClassifier;
-        this.ruleEvaluator = ruleEvaluator;
+        this.policyEvaluator = policyEvaluator;
         this.requestToAnswersMapper = requestToAnswersMapper;
     }
 
@@ -56,15 +51,10 @@ public class VerdictsController {
         PolicyRecord policy = policyCatalog.findById(request.policyId())
                 .orElseThrow(() -> new PolicyNotFoundException(request.policyId()));
 
-        // out_of_scope는 런타임 평가 이전의 정적 분류다(ADR-0003 D3) — 답변을 평가하지 않는다.
-        if (outOfScopeClassifier.isOutOfScope(policy.rule())) {
-            return ResponseEntity.ok(toDto(policy, Verdict.outOfScope(), List.of()));
-        }
-
+        // 판정 조립(정적 out_of_scope + base rule + 범위 게이트)은 도메인 PolicyEvaluator가 담당한다.
         Answers answers = requestToAnswersMapper.toAnswers(request.answers());
-        RuleEvaluationResult result = ruleEvaluator.evaluate(policy.rule(), answers);
-        Verdict verdict = VerdictMapper.toVerdict(result.value(), result.contributingEvaluations());
-        return ResponseEntity.ok(toDto(policy, verdict, result.atomEvaluations()));
+        PolicyEvaluation evaluation = policyEvaluator.evaluate(policy.rule(), policy.outOfScopeGate(), answers);
+        return ResponseEntity.ok(toDto(policy, evaluation.verdict(), evaluation.reasoning()));
     }
 
     private VerdictResultDto toDto(PolicyRecord policy, Verdict verdict, List<AtomEvaluation> atomEvaluations) {

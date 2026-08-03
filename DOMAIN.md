@@ -157,7 +157,7 @@ unknown은 "참일 수도 거짓일 수도 있어 아직 단정 불가"다. 세 
 
 - `self` 원자: 입력이 명확하면 true/false, '모름/대략'이면 unknown(입력 불확실 태그).
 - `admin_discretion` 원자: 항상 unknown(행정 재량 태그). `any_of(자가판정경로, 재량경로)`에서 자가판정경로가 true면 **true로 해소**(unknown OR true = true) — 청년월세 면제군의 대체 경로가 성립하는 지점(2.2).
-- `household_aggregate` 원자: 3치 평가에 **들어가지 않는다.** 규칙이 이 원자를 참조하면 정책은 평가 이전에 `out_of_scope`로 사전 분류된다(1.2·2.2). 즉 out_of_scope는 런타임 논리값이 아니라 규칙의 정적 속성이다.
+- `household_aggregate` 원자: 3치 평가에 **들어가지 않는다.** 규칙이 이 원자를 참조하면 정책은 평가 이전에 `out_of_scope`로 사전 분류된다(1.2·2.2). 즉 이 경로의 out_of_scope는 런타임 논리값이 아니라 규칙의 정적 속성이다. (단, 청년월세 면제군처럼 범위 게이트를 둔 정책은 사용자 답변에 따라 런타임에 out_of_scope로 분류될 수 있다 — ADR-0005 D5. 정적 분류와 런타임 게이트는 별개 경로이며 소비측 verdict enum은 동일한 `out_of_scope`다.)
 
 ### 3.5 경계 예시
 
@@ -225,26 +225,37 @@ Rule DSL 트리는 정책 레코드의 `rule` 필드다. 나머지(선발 방식
 ```
 모두 `self` → 정상 3치 평가. 소득만 '모름'이면 → unknown → needs_review.
 
-### 4.6 예시 B — 청년월세 면제군 (any_of + admin_discretion)
+### 4.6 예시 B — 청년월세 면제군 (base rule + out_of_scope_gate)
 
-면제군 = 원가구 소득 평가를 면제받는 경로. 면제 경로를 `any_of`로 표현한다:
+면제군 = 원가구 소득(`income_original`, `household_aggregate`) 평가를 면제받는 사람만 판정 대상으로 좁힌 정책. 자격 rule은 자가판정 원자만 담고, 면제 여부는 **범위 게이트**(`out_of_scope_gate`)로 분리한다 — 게이트는 자격이 아니라 "이 사용자를 자가판정할 수 있는가"를 가른다(§4.4·ADR-0005 D5).
 
 ```json
 {
-  "all_of": [
-    { "atom": "age", "params": { "min": 19, "max": 34 } },
-    { "atom": "income_self", "params": { "median_pct": 60 } },
-    { "any_of": [
+  "rule": {
+    "all_of": [
+      { "atom": "age", "params": { "min": 19, "max": 34 } },
+      { "atom": "housing_none" },
+      { "atom": "lease_type", "params": { "allowed": ["wolse"] } },
+      { "atom": "income_self", "params": { "max_krw": 50000000 } }
+    ]
+  },
+  "out_of_scope_gate": {
+    "any_of": [
       { "atom": "age", "params": { "min": 30 } },
-      { "atom": "household_composition", "params": { "scope": "self", "married": true } },
-      { "atom": "separate_residence" }
-    ] }
-  ]
+      { "atom": "household_composition", "params": { "scope": "self", "married": true } }
+    ]
+  }
 }
 ```
-`any_of` 안쪽이 면제 판정: 30세 이상=true거나 혼인=true면 → `unknown OR true = true`로 해소(가능). 자가 경로가 모두 false이고 재량만 unknown이면 → any_of unknown → needs_review("행정청 확인"). 3.4가 그대로 작동.
 
-> 값·구조는 근사 예시다. 실제 파라미터와 면제 요건은 Phase 7에서 공식 출처로 검증해 확정한다(persona-matrix 근사치).
+게이트 평가(ADR-0005 D5):
+- 게이트 TRUE(30세 이상 또는 혼인) → 면제 성립 → base verdict 그대로.
+- 게이트 FALSE(30세 미만·미혼, 둘 다 확정) → `out_of_scope`. 남은 경로는 행정청 별도거주 인정 또는 원가구 소득 확인뿐이라 자가판정 불가.
+- 게이트 UNKNOWN(혼인 여부 '모름' 등 입력 불확실) → `needs_review`("혼인 여부를 확인하면 판정됩니다").
+
+행정 재량(`separate_residence`)은 게이트 멤버가 아니다 — admin_discretion은 항상 unknown이라 `any_of`를 FALSE에 도달하지 못하게 막는다(§3.4). 재량 면제 경로는 out_of_scope 의미에 흡수된다.
+
+> 값·구조는 근사 예시다. 실제 파라미터와 면제 요건은 공식 출처로 검증해 확정한다(임계값은 이슈 #15/#16, persona-matrix 근사치).
 
 ## 5. 대상 정책 (MVP)
 
@@ -265,10 +276,10 @@ Rule DSL 트리는 정책 레코드의 `rule` 필드다. 나머지(선발 방식
 
 ### 5.3 청년월세 특별지원 (면제군 한정)
 
-- 사용 원자: `age`, `housing_none`, `lease_type`(월세), `income_self`, + 면제 게이트 `any_of(age≥30, household_composition[married], separate_residence)`
-- 값 유형: `separate_residence` = `admin_discretion`(항상 unknown, 대체 경로로 해소, §3.4). 원 정책의 `income_original`(`household_aggregate`)은 **면제군 한정으로 규칙에서 배제**한다.
-- 구조: `all_of` + 면제 `any_of` (§4.6 예시)
-- **열린 문제(Phase 7):** 면제 게이트가 명확히 false인 사용자(30세 미만·미혼·재량 인정 없음)를 '부적합'이 아니라 `out_of_scope`로 보내야 FN을 막는다 — 이들은 배제한 `income_original` 경로로는 자격이 있을 수 있기 때문. D3의 "household_aggregate 참조 시 정적 out_of_scope"만으론 부족하고, **면제 게이트 false → out_of_scope** 규칙이 별도로 필요하다. 확정 시 ADR-0003에 결정 추가.
+- 사용 원자: `age`, `housing_none`, `lease_type`(월세), `income_self` (자격 rule) + `age`, `household_composition[married]` (범위 게이트)
+- 원 정책의 `income_original`(`household_aggregate`)은 **면제군 한정으로 규칙에서 배제**한다. 배제로 생기는 판정 불가 경계는 범위 게이트가 흡수한다.
+- 구조: 자격 `all_of` + `out_of_scope_gate` `any_of` (§4.6 예시)
+- **결정(ADR-0005, 열린 문제 해소):** 면제 게이트가 자가판정으로 FALSE인 사용자(30세 미만·미혼)는 '부적합'이 아니라 `out_of_scope`로 보낸다 — 이들은 배제한 `income_original` 또는 행정청 재량으로 자격이 있을 수 있어 FN을 막아야 하기 때문. 게이트는 자가판정 경로(30세 이상·혼인)만 담고, 행정 재량(`separate_residence`)은 게이트에 넣지 않고 out_of_scope 의미에 흡수한다(admin_discretion을 넣으면 §3.4상 게이트가 FALSE에 도달 못 함). base 자격이 이미 FALSE인 사용자(나이 범위 밖 등)는 ineligible이 우선한다.
 
 ### 5.4 (later) 주거급여 청년 분리지급 — 4종째 후보
 

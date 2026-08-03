@@ -9,5 +9,6 @@ public record AnswersDto(
         @JsonProperty("housing_none") @Valid AnswerBoolDto housingNone,
         @JsonProperty("income_self_monthly_krw") @Valid AnswerApproxIntDto incomeSelfMonthlyKrw,
         @JsonProperty("lease_type") @Valid AnswerStringDto leaseType,
-        @JsonProperty("asset_self_krw") @Valid AnswerApproxIntDto assetSelfKrw) {
+        @JsonProperty("asset_self_krw") @Valid AnswerApproxIntDto assetSelfKrw,
+        @JsonProperty("married") @Valid AnswerBoolDto married) {
 }

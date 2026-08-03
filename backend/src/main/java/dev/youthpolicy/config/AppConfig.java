@@ -1,6 +1,7 @@
 package dev.youthpolicy.config;
 
 import dev.youthpolicy.api.RequestToAnswersMapper;
+import dev.youthpolicy.domain.evaluate.PolicyEvaluator;
 import dev.youthpolicy.domain.evaluate.RuleEvaluator;
 import dev.youthpolicy.domain.scope.OutOfScopeClassifier;
 import dev.youthpolicy.policy.PolicyCatalog;
@@ -27,6 +28,11 @@ public class AppConfig {
     @Bean
     public RuleEvaluator ruleEvaluator() {
         return new RuleEvaluator();
+    }
+
+    @Bean
+    public PolicyEvaluator policyEvaluator(OutOfScopeClassifier outOfScopeClassifier, RuleEvaluator ruleEvaluator) {
+        return new PolicyEvaluator(outOfScopeClassifier, ruleEvaluator);
     }
 
     @Bean
