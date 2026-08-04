@@ -48,7 +48,9 @@ jobs:
           fi
 
           # 브랜치명에서 이슈 번호 추출: type/<이슈#>-<F-ID>-슬러그
-          issue_from_branch() { printf '%s' "$1" | grep -oE '/[0-9]+' | head -1 | tr -d '/'; }
+          # grep no-match(exit 1)를 흡수한다 — 번호 없는 브랜치에서 set -euo pipefail이 스텝을
+          # 중단하지 않고 빈 문자열을 반환해 "이슈 번호 없음 — skip" 경로로 넘어가게 한다(이슈 #41).
+          issue_from_branch() { printf '%s' "$1" | { grep -oE '/[0-9]+' || true; } | head -1 | tr -d '/'; }
 
           # 이슈의 프로젝트 아이템 id를 얻는다(없으면 보드에 추가).
           resolve_item() {
