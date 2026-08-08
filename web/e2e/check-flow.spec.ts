@@ -12,6 +12,8 @@ const DISCLAIMER_TEXT = "이 결과는 입력하신 내용을 바탕으로 한 �
 
 async function goToCheck(page: import("@playwright/test").Page) {
   await page.goto("/check");
+  // #50(정책 선택)부터 /check는 정책 선택 화면을 먼저 보여준다 — 청년 주택드림을 골라 질문으로 들어간다.
+  await page.getByRole("button", { name: /청년 주택드림 청약통장/ }).click();
   await expect(page.getByText("나이가 어떻게 되세요?")).toBeVisible();
 }
 
