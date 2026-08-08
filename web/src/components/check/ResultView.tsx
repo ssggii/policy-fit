@@ -2,8 +2,9 @@ import type { AtomResult, UnknownReason, VerdictResult, VerdictState } from "@/l
 import Disclaimer from "./Disclaimer";
 
 /**
- * state·atom result별 표시 문구·색상 맵. 와이어프레임 적용 시 이 맵의 className만 바꾸면 된다.
- * 상태색은 최소한만: 가능=초록, 부적합=회색, 추가 확인 필요=주황.
+ * state·atom result별 표시 문구·색상 맵. 디자인은 이 맵만 바꾸면 된다.
+ * 4-state 판정 의미색(docs/design/polfit-design.html §02): eligible=green, needs_review=amber,
+ * ineligible=slate, out_of_scope=violet. 액센트(blue)와는 겹치지 않는다.
  */
 const STATE_LABELS: Record<VerdictState, string> = {
   eligible: "가능",
@@ -12,11 +13,25 @@ const STATE_LABELS: Record<VerdictState, string> = {
   out_of_scope: "자가판정 불가",
 };
 
-const STATE_BADGE_STYLES: Record<VerdictState, string> = {
-  eligible: "bg-green-100 text-green-800 border border-green-300",
-  ineligible: "bg-zinc-100 text-zinc-700 border border-zinc-300",
-  needs_review: "bg-orange-100 text-orange-800 border border-orange-300",
-  out_of_scope: "bg-zinc-100 text-zinc-700 border border-zinc-300",
+const STATE_HERO_BG: Record<VerdictState, string> = {
+  eligible: "bg-eligible-wash",
+  ineligible: "bg-ineligible-wash",
+  needs_review: "bg-review-wash",
+  out_of_scope: "bg-oos-wash",
+};
+
+const STATE_TEXT: Record<VerdictState, string> = {
+  eligible: "text-eligible",
+  ineligible: "text-ineligible",
+  needs_review: "text-review",
+  out_of_scope: "text-oos",
+};
+
+const STATE_DOT_BG: Record<VerdictState, string> = {
+  eligible: "bg-eligible",
+  ineligible: "bg-ineligible",
+  needs_review: "bg-review",
+  out_of_scope: "bg-oos",
 };
 
 const ATOM_RESULT_LABELS: Record<AtomResult, string> = {
@@ -25,10 +40,23 @@ const ATOM_RESULT_LABELS: Record<AtomResult, string> = {
   unknown: "불확실",
 };
 
-const ATOM_RESULT_STYLES: Record<AtomResult, string> = {
-  met: "text-green-700",
-  unmet: "text-zinc-500",
-  unknown: "text-orange-700",
+/** 근거 행의 원형 아이콘 배경 — met/unmet/unknown을 색으로도 구분한다(rrow .ic). */
+const ATOM_ICON_BG: Record<AtomResult, string> = {
+  met: "bg-eligible",
+  unmet: "bg-ineligible",
+  unknown: "bg-review",
+};
+
+const ATOM_ICON_GLYPH: Record<AtomResult, string> = {
+  met: "✓",
+  unmet: "✕",
+  unknown: "?",
+};
+
+const ATOM_RESULT_TEXT: Record<AtomResult, string> = {
+  met: "text-eligible",
+  unmet: "text-ineligible",
+  unknown: "text-review",
 };
 
 /** DOMAIN 3.1 — unknown 출처별 안내 문구. */
@@ -39,21 +67,28 @@ const UNKNOWN_REASON_TEXT: Record<UnknownReason, string> = {
 };
 
 const STYLES = {
-  page: "flex flex-col gap-6",
-  badge: "inline-block w-fit rounded-full px-4 py-1 text-sm font-medium",
-  unknownNote: "text-sm text-orange-700",
-  section: "flex flex-col gap-2",
-  sectionTitle: "text-base font-medium",
+  page: "mx-auto flex w-full max-w-[560px] flex-col gap-6",
+  hero: "flex flex-col gap-3 rounded-card p-5",
+  badge: "inline-flex w-fit items-center gap-2 text-[28px] font-extrabold tracking-[-0.035em]",
+  badgeDot: "h-2 w-2 flex-none rounded-full",
+  unknownList: "flex flex-col gap-1",
+  unknownNote: "text-[13px] leading-relaxed text-review",
+  section: "flex flex-col gap-2.5",
+  sectionTitle: "text-xs font-bold uppercase tracking-[0.1em] text-faint",
   reasoningList: "flex flex-col gap-2",
-  reasoningItem: "rounded border border-zinc-200 px-3 py-2",
+  reasoningItem: "flex items-center gap-3 rounded-xl border border-line bg-surface px-3.5 py-3",
+  reasoningIcon: "grid h-5 w-5 flex-none place-items-center rounded-full text-[11px] font-extrabold text-on-blue",
+  reasoningBody: "flex min-w-0 flex-1 flex-col gap-0.5",
   reasoningLabelRow: "flex items-center justify-between gap-2",
-  reasoningLabel: "font-medium",
-  reasoningResult: "text-sm font-medium",
-  reasoningDetail: "mt-1 text-sm text-zinc-600",
-  reasoningSource: "mt-1 text-xs text-zinc-400",
-  applicationBox: "flex flex-col gap-2 rounded border border-zinc-200 px-4 py-3",
-  applicationMeta: "text-sm text-zinc-600",
-  handoffButton: "mt-1 self-start rounded bg-zinc-900 px-5 py-2 text-white",
+  reasoningLabel: "text-sm font-bold text-ink",
+  reasoningResult: "flex-none text-xs font-bold",
+  reasoningDetail: "text-xs text-muted",
+  reasoningSource: "font-mono text-[10.5px] text-faint",
+  applicationBox: "flex flex-col gap-2 rounded-2xl border border-line bg-surface p-4",
+  applicationMeta: "text-[12.5px] leading-relaxed text-muted",
+  applicationMetaLabel: "font-semibold text-ink",
+  handoffButton:
+    "mt-1 flex w-full items-center justify-center gap-2 rounded-input bg-blue px-[15px] py-[15px] text-base font-bold text-on-blue transition-app hover:bg-blue-press",
 };
 
 export interface ResultViewProps {
@@ -62,16 +97,21 @@ export interface ResultViewProps {
 
 /**
  * 판정 결과 화면. verdict.state는 백엔드가 계산한 값을 그대로 표시만 한다(판정 로직 없음).
+ * 디자인: docs/design/polfit-design.html "결과" 화면(verdict-hero + rlist + app-card).
  */
 export default function ResultView({ result }: ResultViewProps) {
   const { verdict, reasoning, application } = result;
+  const state = verdict.state;
 
   return (
     <div className={STYLES.page}>
-      <div>
-        <span className={`${STYLES.badge} ${STATE_BADGE_STYLES[verdict.state]}`}>{STATE_LABELS[verdict.state]}</span>
+      <div className={`${STYLES.hero} ${STATE_HERO_BG[state]}`}>
+        <h1 className={`${STYLES.badge} ${STATE_TEXT[state]}`}>
+          <span className={`${STYLES.badgeDot} ${STATE_DOT_BG[state]}`} aria-hidden />
+          {STATE_LABELS[state]}
+        </h1>
         {verdict.unknown_reasons && verdict.unknown_reasons.length > 0 && (
-          <ul className="mt-2 flex flex-col gap-1">
+          <ul className={STYLES.unknownList}>
             {verdict.unknown_reasons.map((reason) => (
               <li key={reason} className={STYLES.unknownNote}>
                 {UNKNOWN_REASON_TEXT[reason]}
@@ -79,29 +119,34 @@ export default function ResultView({ result }: ResultViewProps) {
             ))}
           </ul>
         )}
+
+        {/* F-005: 4개 state 전부에서 조건 없이 항상 렌더링 */}
+        <Disclaimer />
       </div>
 
-      {/* F-005: 3개 state 전부에서 조건 없이 항상 렌더링 */}
-      <Disclaimer />
-
       <div className={STYLES.section}>
-        <p className={STYLES.sectionTitle}>요건별 근거</p>
+        <p className={STYLES.sectionTitle}>판정 근거</p>
         <ul className={STYLES.reasoningList}>
           {reasoning.map((item) => (
             <li key={item.atom} className={STYLES.reasoningItem}>
-              <div className={STYLES.reasoningLabelRow}>
-                <span className={STYLES.reasoningLabel}>{item.label}</span>
-                <span className={`${STYLES.reasoningResult} ${ATOM_RESULT_STYLES[item.result]}`}>
-                  {ATOM_RESULT_LABELS[item.result]}
-                </span>
+              <span className={`${STYLES.reasoningIcon} ${ATOM_ICON_BG[item.result]}`} aria-hidden>
+                {ATOM_ICON_GLYPH[item.result]}
+              </span>
+              <div className={STYLES.reasoningBody}>
+                <div className={STYLES.reasoningLabelRow}>
+                  <span className={STYLES.reasoningLabel}>{item.label}</span>
+                  <span className={`${STYLES.reasoningResult} ${ATOM_RESULT_TEXT[item.result]}`}>
+                    {ATOM_RESULT_LABELS[item.result]}
+                  </span>
+                </div>
+                {item.detail && <p className={STYLES.reasoningDetail}>{item.detail}</p>}
+                {(item.source || item.year) && (
+                  <p className={STYLES.reasoningSource}>
+                    출처: {item.source ?? "-"}
+                    {item.year ? ` (${item.year}년 기준)` : ""}
+                  </p>
+                )}
               </div>
-              {item.detail && <p className={STYLES.reasoningDetail}>{item.detail}</p>}
-              {(item.source || item.year) && (
-                <p className={STYLES.reasoningSource}>
-                  출처: {item.source ?? "-"}
-                  {item.year ? ` (${item.year}년 기준)` : ""}
-                </p>
-              )}
             </li>
           ))}
         </ul>
@@ -111,8 +156,16 @@ export default function ResultView({ result }: ResultViewProps) {
       {application?.url && (
         <div className={STYLES.applicationBox}>
           <p className={STYLES.sectionTitle}>신청 안내</p>
-          {application.selection_method && <p className={STYLES.applicationMeta}>선발 방식: {application.selection_method}</p>}
-          {application.period && <p className={STYLES.applicationMeta}>신청 시기: {application.period}</p>}
+          {application.selection_method && (
+            <p className={STYLES.applicationMeta}>
+              <span className={STYLES.applicationMetaLabel}>선발 방식</span> {application.selection_method}
+            </p>
+          )}
+          {application.period && (
+            <p className={STYLES.applicationMeta}>
+              <span className={STYLES.applicationMetaLabel}>신청 시기</span> {application.period}
+            </p>
+          )}
           <a
             className={STYLES.handoffButton}
             href={application.url}

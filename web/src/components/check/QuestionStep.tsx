@@ -6,23 +6,41 @@ import type { ApproxIntQuestion, BoolQuestion, IntQuestion, Question, SelectQues
 import type { AnyAnswer } from "./answers";
 
 /**
- * 스타일은 여기 한 곳에 상수로 몰아둔다 — 와이어프레임이 나오면 이 맵만 교체하면 되게.
- * 로직(상태·이벤트 핸들러)은 아래 컴포넌트 본문에 두고 className 문자열만 여기서 가져다 쓴다.
+ * 스타일은 여기 한 곳에 상수로 몰아둔다 — 디자인이 바뀌면 이 맵만 교체하면 되게.
+ * 로직(상태·이벤트 핸들러·role·접근성 이름)은 그대로 두고 className만 디자인 토큰(globals.css)으로 교체했다.
+ * 참고: docs/design/polfit-design.html의 q-title/q-help/field/choice/seg 컴포넌트.
  */
 const STYLES = {
-  container: "flex flex-col gap-3",
-  label: "text-lg font-medium",
-  helper: "text-sm text-zinc-500",
-  input: "w-full max-w-xs rounded border border-zinc-300 px-3 py-2 text-base disabled:bg-zinc-100 disabled:text-zinc-400",
-  unit: "text-sm text-zinc-500",
-  inputRow: "flex items-center gap-2",
-  checkboxRow: "flex flex-wrap items-center gap-4 text-sm text-zinc-600",
-  checkboxLabel: "flex items-center gap-1.5",
-  optionRow: "flex flex-wrap gap-2",
-  optionButtonBase: "rounded border px-4 py-2 text-sm",
-  optionButtonSelected: "border-zinc-900 bg-zinc-900 text-white",
-  optionButtonUnselected: "border-zinc-300 bg-white text-zinc-700",
-  nextButton: "mt-2 self-start rounded bg-zinc-900 px-5 py-2 text-white disabled:bg-zinc-300",
+  container: "flex flex-col gap-4",
+  label: "mt-0.5 text-[22px] font-extrabold leading-[1.25] tracking-[-0.03em] text-ink",
+  helper: "text-[13px] leading-relaxed text-muted",
+  // .field — 입력 한 줄. focus-within으로 blue 링을 준다(별도 focus state 불필요).
+  inputRow:
+    "flex items-center gap-2 rounded-input border-[1.5px] border-line bg-surface px-[15px] py-[14px] transition-app focus-within:border-blue focus-within:shadow-[0_0_0_4px_var(--blue-wash)]",
+  input:
+    "w-full min-w-0 bg-transparent text-[17px] font-semibold text-ink outline-none placeholder:font-medium placeholder:text-faint disabled:text-faint",
+  unit: "ml-auto flex-none text-sm font-semibold text-faint",
+  checkboxRow: "flex flex-wrap items-center gap-2",
+  // 네이티브 체크박스는 눈에 보이지 않게(opacity-0) 라벨 전체를 덮게 겹쳐, 라벨을 seg 필(pill)처럼 그린다.
+  // sr-only(0px 크기)로 숨기면 클릭 좌표가 라벨과 겹쳐 실제 브라우저 클릭(E2E)이 라벨에 가로막힌다 —
+  // absolute+inset-0으로 히트 영역을 라벨 전체로 넓혀서 피한다. role="checkbox"·접근성 이름은 그대로 유지된다.
+  chipLabelBase:
+    "relative inline-flex cursor-pointer select-none items-center gap-1.5 rounded-full border-[1.5px] px-3 py-2 text-[12.5px] font-bold transition-app has-[:disabled]:cursor-not-allowed has-[:disabled]:opacity-50",
+  chipLabelOn: "border-ink bg-ink text-bg",
+  chipLabelOff: "border-line text-muted",
+  chipInput: "absolute inset-0 h-full w-full cursor-pointer opacity-0",
+  // .choices/.choice — 세로로 쌓인 선택 행. 선택되면 파란 테두리+wash, 원형 라디오 표시로 시각 강조.
+  optionRow: "flex flex-col gap-2.5",
+  optionButtonBase:
+    "flex w-full items-center gap-3 rounded-input border-[1.5px] px-4 py-[15px] text-left text-base font-semibold transition-app",
+  optionButtonSelected: "border-blue bg-blue-wash text-ink",
+  optionButtonUnselected: "border-line bg-surface text-ink hover:border-blue/50",
+  radioBase: "grid h-5 w-5 flex-none place-items-center rounded-full border-2",
+  radioSelected: "border-blue",
+  radioUnselected: "border-line",
+  radioDot: "h-2.5 w-2.5 rounded-full bg-blue",
+  nextButton:
+    "mt-2 flex w-full items-center justify-center gap-2 rounded-input bg-blue px-[15px] py-[15px] text-base font-bold text-on-blue transition-app hover:bg-blue-press disabled:cursor-not-allowed disabled:bg-line disabled:text-faint",
 };
 
 export interface QuestionStepProps {
@@ -63,6 +81,30 @@ export default function QuestionStep({ question, defaultAnswer, onSubmit }: Ques
   return <IntQuestionBody question={question} defaultAnswer={defaultAnswer as AnswerInt | undefined} onSubmit={onSubmit} />;
 }
 
+/** '모름' 체크박스를 seg 필 모양으로 그리는 공용 조각. role="checkbox"·name은 그대로 유지된다. */
+function UnknownChip({ checked, onChange }: { checked: boolean; onChange: (checked: boolean) => void }) {
+  return (
+    <label className={`${STYLES.chipLabelBase} ${checked ? STYLES.chipLabelOn : STYLES.chipLabelOff}`}>
+      <input
+        type="checkbox"
+        className={STYLES.chipInput}
+        checked={checked}
+        onChange={(e) => onChange(e.target.checked)}
+      />
+      모름
+    </label>
+  );
+}
+
+/** 선택 행(choice) 앞의 원형 라디오 표시 — 순수 표시용, 렌더 중 재생성되지 않도록 모듈 스코프에 둔다. */
+function Radio({ active }: { active: boolean }) {
+  return (
+    <span className={`${STYLES.radioBase} ${active ? STYLES.radioSelected : STYLES.radioUnselected}`}>
+      {active && <span className={STYLES.radioDot} />}
+    </span>
+  );
+}
+
 function IntQuestionBody({
   question,
   defaultAnswer,
@@ -86,7 +128,7 @@ function IntQuestionBody({
 
   return (
     <div className={STYLES.container}>
-      <p className={STYLES.label}>{question.label}</p>
+      <h1 className={STYLES.label}>{question.label}</h1>
       <p className={STYLES.helper}>{question.helper}</p>
       <div className={STYLES.inputRow}>
         <input
@@ -102,10 +144,7 @@ function IntQuestionBody({
         <span className={STYLES.unit}>{question.unit}</span>
       </div>
       <div className={STYLES.checkboxRow}>
-        <label className={STYLES.checkboxLabel}>
-          <input type="checkbox" checked={unknown} onChange={(e) => setUnknown(e.target.checked)} />
-          모름
-        </label>
+        <UnknownChip checked={unknown} onChange={setUnknown} />
       </div>
       <button type="button" className={STYLES.nextButton} disabled={!canSubmit} onClick={handleSubmit}>
         다음
@@ -145,16 +184,19 @@ function BoolQuestionBody({
 
   return (
     <div className={STYLES.container}>
-      <p className={STYLES.label}>{question.label}</p>
+      <h1 className={STYLES.label}>{question.label}</h1>
       <p className={STYLES.helper}>{question.helper}</p>
       <div className={STYLES.optionRow}>
         <button type="button" className={optionClassName(selection === "true")} onClick={() => setSelection("true")}>
+          <Radio active={selection === "true"} />
           {question.trueLabel}
         </button>
         <button type="button" className={optionClassName(selection === "false")} onClick={() => setSelection("false")}>
+          <Radio active={selection === "false"} />
           {question.falseLabel}
         </button>
         <button type="button" className={optionClassName(selection === "unknown")} onClick={() => setSelection("unknown")}>
+          <Radio active={selection === "unknown"} />
           모름
         </button>
       </div>
@@ -189,7 +231,7 @@ function ApproxIntQuestionBody({
 
   return (
     <div className={STYLES.container}>
-      <p className={STYLES.label}>{question.label}</p>
+      <h1 className={STYLES.label}>{question.label}</h1>
       <p className={STYLES.helper}>{question.helper}</p>
       <div className={STYLES.inputRow}>
         <input
@@ -205,19 +247,17 @@ function ApproxIntQuestionBody({
         <span className={STYLES.unit}>{question.unit}</span>
       </div>
       <div className={STYLES.checkboxRow}>
-        <label className={STYLES.checkboxLabel}>
+        <label className={`${STYLES.chipLabelBase} ${approx && !unknown ? STYLES.chipLabelOn : STYLES.chipLabelOff}`}>
           <input
             type="checkbox"
+            className={STYLES.chipInput}
             checked={approx}
             disabled={unknown}
             onChange={(e) => setApprox(e.target.checked)}
           />
           대략 알아요 (정확한 값은 몰라요)
         </label>
-        <label className={STYLES.checkboxLabel}>
-          <input type="checkbox" checked={unknown} onChange={(e) => setUnknown(e.target.checked)} />
-          모름
-        </label>
+        <UnknownChip checked={unknown} onChange={setUnknown} />
       </div>
       <button type="button" className={STYLES.nextButton} disabled={!canSubmit} onClick={handleSubmit}>
         다음
@@ -264,7 +304,7 @@ function SelectQuestionBody({
 
   return (
     <div className={STYLES.container}>
-      <p className={STYLES.label}>{question.label}</p>
+      <h1 className={STYLES.label}>{question.label}</h1>
       <p className={STYLES.helper}>{question.helper}</p>
       <div className={STYLES.optionRow}>
         {question.options.map((opt) => (
@@ -274,6 +314,7 @@ function SelectQuestionBody({
             className={optionClassName(selectedValue === opt.value)}
             onClick={() => setSelection({ kind: "value", value: opt.value })}
           >
+            <Radio active={selectedValue === opt.value} />
             {opt.label}
           </button>
         ))}
@@ -282,6 +323,7 @@ function SelectQuestionBody({
           className={optionClassName(selection?.kind === "unknown")}
           onClick={() => setSelection({ kind: "unknown" })}
         >
+          <Radio active={selection?.kind === "unknown"} />
           모름
         </button>
       </div>

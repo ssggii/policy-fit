@@ -1,26 +1,145 @@
 @import "tailwindcss";
 
+/*
+ * 폴핏 디자인 토큰. 출처(SSOT): docs/design/polfit-design.html — 값은 그대로 옮긴다.
+ * :root에 라이트 값을 기본으로 두고, prefers-color-scheme:dark에서만 덮어쓴다(수동 토글 없음).
+ */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+  --bg: #fbfcfe;
+  --surface: #ffffff;
+  --surface-2: #f4f7fc;
+  --ink: #0b1220;
+  --muted: #5b6472;
+  --faint: #8a93a3;
+  --line: #e5e9f1;
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --blue: #2e5bff;
+  --blue-press: #1e43d8;
+  --blue-wash: #eef2ff;
+  --on-blue: #ffffff;
+
+  --eligible: #0f7a57;
+  --eligible-wash: #e6f5ef;
+  --review: #b45309;
+  --review-wash: #fbf0e1;
+  --ineligible: #5a667a;
+  --ineligible-wash: #edf0f5;
+  --oos: #6248d6;
+  --oos-wash: #ede9fb;
+
+  --shadow-card-raw: 0 1px 2px rgba(11, 18, 32, 0.04), 0 8px 24px -12px rgba(11, 18, 32, 0.14);
+  --shadow-card-lg-raw: 0 2px 4px rgba(11, 18, 32, 0.05), 0 24px 48px -20px rgba(24, 40, 96, 0.28);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --bg: #080b12;
+    --surface: #111726;
+    --surface-2: #0d1320;
+    --ink: #eaf0fa;
+    --muted: #9ba7ba;
+    --faint: #69748a;
+    --line: #222b3c;
+
+    --blue: #5b82ff;
+    --blue-press: #4b79ff;
+    --blue-wash: rgba(91, 130, 255, 0.15);
+    --on-blue: #07101f;
+
+    --eligible: #37d69e;
+    --eligible-wash: rgba(55, 214, 158, 0.14);
+    --review: #f5b841;
+    --review-wash: rgba(245, 184, 65, 0.14);
+    --ineligible: #9aa7bc;
+    --ineligible-wash: rgba(154, 167, 188, 0.13);
+    --oos: #a896fa;
+    --oos-wash: rgba(168, 150, 250, 0.16);
+
+    --shadow-card-raw: 0 1px 2px rgba(0, 0, 0, 0.4), 0 12px 30px -14px rgba(0, 0, 0, 0.6);
+    --shadow-card-lg-raw: 0 2px 6px rgba(0, 0, 0, 0.5), 0 30px 60px -22px rgba(0, 0, 0, 0.7);
   }
 }
 
+/*
+ * Tailwind v4 테마 매핑 — 위 CSS 변수를 유틸리티 클래스로 노출한다.
+ * (bg-bg, text-ink, border-line, bg-eligible-wash, rounded-card, shadow-card ...)
+ * 라이트/다크는 위 :root 변수가 갈아끼워지는 것만으로 자동 반영된다.
+ */
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-faint: var(--faint);
+  --color-line: var(--line);
+
+  --color-blue: var(--blue);
+  --color-blue-press: var(--blue-press);
+  --color-blue-wash: var(--blue-wash);
+  --color-on-blue: var(--on-blue);
+
+  --color-eligible: var(--eligible);
+  --color-eligible-wash: var(--eligible-wash);
+  --color-review: var(--review);
+  --color-review-wash: var(--review-wash);
+  --color-ineligible: var(--ineligible);
+  --color-ineligible-wash: var(--ineligible-wash);
+  --color-oos: var(--oos);
+  --color-oos-wash: var(--oos-wash);
+
+  --radius-card: 20px;
+  --radius-input: 14px;
+  --radius-chip: 10px;
+
+  --shadow-card: var(--shadow-card-raw);
+  --shadow-card-lg: var(--shadow-card-lg-raw);
+
+  /* 한글 시스템 폰트 스택 — 외부 CDN·next/font 없이 OS 기본 서체를 그대로 쓴다 */
+  --font-sans: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard", "Malgun Gothic", system-ui,
+    sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  letter-spacing: -0.01em;
+}
+
+/* 헤딩(화면 대표 문구로 승격한 h1 등)의 UA 기본 마진은 Tailwind v4 preflight가 이미 0으로
+   리셋하고, 크기·간격은 각 컴포넌트의 className(디자인 토큰)이 전담한다 — 여기서 h1,h2,h3 마진을
+   다시 강제하면 @layer 밖 규칙이라 mt-* 유틸리티를 무력화하므로 두지 않는다. */
+
+/*
+ * border-radius를 여기서 강제하지 않는다 — 이 규칙이 Tailwind v4 유틸리티 레이어 밖(unlayered)에
+ * 있어 cascade layer 상 rounded-2xl/rounded-full/rounded-input 등 유틸리티보다 항상 이겨버려서,
+ * 포커스 순간 모든 라운드 요소의 radius가 4px로 깨진다. 최신 브라우저는 outline이 요소 자체의
+ * border-radius를 따라가므로 별도 지정 없이도 카드·버튼·필 모양이 유지된다.
+ */
+:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 2px;
+}
+
+/* prefers-reduced-motion 존중: 모션을 원하는 사용자에게만 트랜지션을 준다 */
+@media (prefers-reduced-motion: no-preference) {
+  .transition-app {
+    transition:
+      border-color 0.15s ease,
+      transform 0.15s ease,
+      background-color 0.15s ease;
+  }
+  .hover-lift:hover {
+    transform: translateY(-1px);
+  }
 }
