@@ -23,13 +23,22 @@ export interface AnswerApproxInt {
   value?: number;
 }
 
-/** MVP 범위 정책 id. openapi enum과 동일하게 유지한다. */
-export type PolicyId = "jutaek-dream";
+/** 문자열 값 질문의 답 (예: 임차 형태 "jeonse"/"wolse"). known=false면 "모름" — value 생략. */
+export interface AnswerString {
+  known: boolean;
+  value?: string;
+}
+
+/** MVP 범위 정책 id 3종. openapi enum과 동일하게 유지한다. */
+export type PolicyId = "jutaek-dream" | "beotimmok-jeonse" | "cheongnyeon-wolse";
 
 export interface VerdictRequestAnswers {
   age?: AnswerInt;
   housing_none?: AnswerBool;
   income_self_monthly_krw?: AnswerApproxInt;
+  lease_type?: AnswerString;
+  asset_self_krw?: AnswerApproxInt;
+  married?: AnswerBool;
 }
 
 export interface VerdictRequest {
