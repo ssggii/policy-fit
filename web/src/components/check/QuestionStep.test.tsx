@@ -7,6 +7,7 @@ import { QUESTIONS, type BoolQuestion } from "./questions";
 const ageQuestion = QUESTIONS.find((q) => q.key === "age")!;
 const housingQuestion = QUESTIONS.find((q) => q.key === "housing_none")! as BoolQuestion;
 const incomeQuestion = QUESTIONS.find((q) => q.key === "income_self")!;
+const leaseQuestion = QUESTIONS.find((q) => q.key === "lease_type")!;
 
 describe("QuestionStep — int (age)", () => {
   it("모름 체크 시 known:false로 제출된다", async () => {
@@ -114,5 +115,34 @@ describe("QuestionStep — approx_int (income_self)", () => {
     await user.click(screen.getByRole("button", { name: "다음" }));
 
     expect(onSubmit).toHaveBeenCalledWith({ known: false });
+  });
+});
+
+describe("QuestionStep — select (lease_type)", () => {
+  it("옵션 선택 시 known:true, value로 제출된다", async () => {
+    const onSubmit = vi.fn();
+    const user = userEvent.setup();
+    render(<QuestionStep question={leaseQuestion} onSubmit={onSubmit} />);
+
+    await user.click(screen.getByRole("button", { name: "전세" }));
+    await user.click(screen.getByRole("button", { name: "다음" }));
+
+    expect(onSubmit).toHaveBeenCalledWith({ known: true, value: "jeonse" });
+  });
+
+  it("모름 선택 시 known:false로 제출된다", async () => {
+    const onSubmit = vi.fn();
+    const user = userEvent.setup();
+    render(<QuestionStep question={leaseQuestion} onSubmit={onSubmit} />);
+
+    await user.click(screen.getByRole("button", { name: "모름" }));
+    await user.click(screen.getByRole("button", { name: "다음" }));
+
+    expect(onSubmit).toHaveBeenCalledWith({ known: false });
+  });
+
+  it("아무것도 고르지 않으면 다음 버튼이 비활성화된다", () => {
+    render(<QuestionStep question={leaseQuestion} onSubmit={vi.fn()} />);
+    expect(screen.getByRole("button", { name: "다음" })).toBeDisabled();
   });
 });

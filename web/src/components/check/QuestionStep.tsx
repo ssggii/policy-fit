@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import type { AnswerApproxInt, AnswerBool, AnswerInt } from "@/lib/types/verdict";
-import type { ApproxIntQuestion, BoolQuestion, IntQuestion, Question } from "./questions";
+import type { AnswerApproxInt, AnswerBool, AnswerInt, AnswerString } from "@/lib/types/verdict";
+import type { ApproxIntQuestion, BoolQuestion, IntQuestion, Question, SelectQuestion } from "./questions";
+import type { AnyAnswer } from "./answers";
 
 /**
  * 스타일은 여기 한 곳에 상수로 몰아둔다 — 와이어프레임이 나오면 이 맵만 교체하면 되게.
@@ -24,8 +25,6 @@ const STYLES = {
   nextButton: "mt-2 self-start rounded bg-zinc-900 px-5 py-2 text-white disabled:bg-zinc-300",
 };
 
-type AnyAnswer = AnswerInt | AnswerBool | AnswerApproxInt;
-
 export interface QuestionStepProps {
   question: Question;
   /** 뒤로가기 등으로 이 질문에 이미 답한 적이 있으면 초기값으로 채운다. */
@@ -34,8 +33,8 @@ export interface QuestionStepProps {
 }
 
 /**
- * 질문 1개를 보여준다. question.type에 따라 int(나이) / bool(무주택) / approx_int(소득) 중
- * 하나의 입력 UI를 렌더링한다. 모든 값은 '모름'으로 응답 가능(F-001 수용 기준).
+ * 질문 1개를 보여준다. question.type에 따라 int(나이) / bool(무주택·혼인) / approx_int(소득·재산)
+ * / select(임차 형태) 중 하나의 입력 UI를 렌더링한다. 모든 값은 '모름'으로 응답 가능(F-001 수용 기준).
  */
 export default function QuestionStep({ question, defaultAnswer, onSubmit }: QuestionStepProps) {
   if (question.type === "bool") {
@@ -48,6 +47,15 @@ export default function QuestionStep({ question, defaultAnswer, onSubmit }: Ques
       <ApproxIntQuestionBody
         question={question}
         defaultAnswer={defaultAnswer as AnswerApproxInt | undefined}
+        onSubmit={onSubmit}
+      />
+    );
+  }
+  if (question.type === "select") {
+    return (
+      <SelectQuestionBody
+        question={question}
+        defaultAnswer={defaultAnswer as AnswerString | undefined}
         onSubmit={onSubmit}
       />
     );
@@ -210,6 +218,72 @@ function ApproxIntQuestionBody({
           <input type="checkbox" checked={unknown} onChange={(e) => setUnknown(e.target.checked)} />
           모름
         </label>
+      </div>
+      <button type="button" className={STYLES.nextButton} disabled={!canSubmit} onClick={handleSubmit}>
+        다음
+      </button>
+    </div>
+  );
+}
+
+function SelectQuestionBody({
+  question,
+  defaultAnswer,
+  onSubmit,
+}: {
+  question: SelectQuestion;
+  defaultAnswer?: AnswerString;
+  onSubmit: (answer: AnswerString) => void;
+}) {
+  type Selection = { kind: "value"; value: string } | { kind: "unknown" } | null;
+  const initialSelection: Selection =
+    defaultAnswer === undefined
+      ? null
+      : defaultAnswer.known === false
+        ? { kind: "unknown" }
+        : defaultAnswer.value !== undefined
+          ? { kind: "value", value: defaultAnswer.value }
+          : null;
+  const [selection, setSelection] = useState<Selection>(initialSelection);
+
+  const canSubmit = selection !== null;
+  const selectedValue = selection?.kind === "value" ? selection.value : null;
+
+  function handleSubmit() {
+    if (selection === null) return;
+    if (selection.kind === "unknown") {
+      onSubmit({ known: false });
+      return;
+    }
+    onSubmit({ known: true, value: selection.value });
+  }
+
+  function optionClassName(active: boolean) {
+    return `${STYLES.optionButtonBase} ${active ? STYLES.optionButtonSelected : STYLES.optionButtonUnselected}`;
+  }
+
+  return (
+    <div className={STYLES.container}>
+      <p className={STYLES.label}>{question.label}</p>
+      <p className={STYLES.helper}>{question.helper}</p>
+      <div className={STYLES.optionRow}>
+        {question.options.map((opt) => (
+          <button
+            key={opt.value}
+            type="button"
+            className={optionClassName(selectedValue === opt.value)}
+            onClick={() => setSelection({ kind: "value", value: opt.value })}
+          >
+            {opt.label}
+          </button>
+        ))}
+        <button
+          type="button"
+          className={optionClassName(selection?.kind === "unknown")}
+          onClick={() => setSelection({ kind: "unknown" })}
+        >
+          모름
+        </button>
       </div>
       <button type="button" className={STYLES.nextButton} disabled={!canSubmit} onClick={handleSubmit}>
         다음
