@@ -12,15 +12,23 @@ import { toVerdictRequestAnswers, type AnyAnswer, type CollectedAnswers } from "
 
 type Status = "selecting" | "answering" | "loading" | "error" | "done";
 
+/**
+ * 질문 화면은 중앙 520 컬럼(docs/design/polfit-design.html 반응형 규칙). PolicySelect·ResultView는
+ * 각자 자기 폭을 갖고 있어(880/560) 이 컴포넌트가 감싸지 않는다.
+ */
 const STYLES = {
-  page: "flex flex-col gap-6",
-  policyName: "text-sm font-medium text-zinc-500",
-  progress: "text-sm text-zinc-400",
-  backButton: "self-start text-sm text-zinc-500 underline",
-  loading: "text-sm text-zinc-500",
-  errorBox: "flex flex-col gap-3",
-  errorText: "text-sm text-red-700",
-  retryButton: "self-start rounded border border-zinc-300 px-4 py-2 text-sm",
+  flowColumn: "mx-auto flex w-full max-w-[520px] flex-col gap-4",
+  topRow: "flex items-center justify-between gap-2",
+  policyName: "text-sm font-semibold text-muted",
+  stepLabel: "font-mono text-xs font-semibold tabular-nums text-faint",
+  progressTrack: "h-1.5 w-full overflow-hidden rounded-full bg-line",
+  progressFill: "transition-app h-full rounded-full bg-blue",
+  backButton: "self-start text-[13px] font-semibold text-faint transition-app hover:text-muted",
+  loading: "mx-auto w-full max-w-[520px] text-sm text-muted",
+  errorBox: "mx-auto flex w-full max-w-[520px] flex-col gap-3",
+  errorText: "text-sm font-medium text-ineligible",
+  retryButton:
+    "self-start rounded-input border-[1.5px] border-line px-4 py-2.5 text-sm font-bold text-ink transition-app hover:border-blue",
 };
 
 /**
@@ -112,14 +120,27 @@ export default function CheckFlow() {
     );
   }
 
+  const progressPercent = ((stepIndex + 1) / stepOrder.length) * 100;
+
   return (
-    <div className={STYLES.page}>
-      <p className={STYLES.policyName}>{policy.name}</p>
-      <p className={STYLES.progress}>
-        {stepIndex + 1} / {stepOrder.length}
-      </p>
+    <div className={STYLES.flowColumn}>
+      <div className={STYLES.topRow}>
+        <p className={STYLES.policyName}>{policy.name}</p>
+        <span className={STYLES.stepLabel}>
+          {stepIndex + 1} / {stepOrder.length}
+        </span>
+      </div>
+      <div className={STYLES.progressTrack}>
+        <div className={STYLES.progressFill} style={{ width: `${progressPercent}%` }} />
+      </div>
       <button type="button" className={STYLES.backButton} onClick={handleBack}>
-        {stepIndex === 0 ? "정책 다시 고르기" : "이전 질문으로"}
+        {stepIndex === 0 ? (
+          "정책 다시 고르기"
+        ) : (
+          <>
+            <span aria-hidden>{"← "}</span>이전 질문으로
+          </>
+        )}
       </button>
       <QuestionStep
         key={currentQuestion.key}
