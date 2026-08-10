@@ -9,3 +9,4 @@
 | 2026-08-03 | C | freeze 훅이 `contracts/openapi.yaml`(married 필드·enum 확장)의 에이전트 직접 편집을 차단 — 계약 변경은 사람 승인·편집 필요 | 청년월세 범위 게이트 (F-003/F-007, #10) | 사람이 검토 포인트 승인 후 직접 편집해 해소, 에이전트가 diff 정합성 검증 |
 | 2026-08-08 | 3-1 | code-reviewer가 #42 초기 구현에서 PolicySelect·정책 카탈로그가 CheckFlow에 미연결(죽은 코드·AC1 미충족) + CollectedAnswers 타입 안전성 후퇴를 지적 | 웹 정책 선택·입력 질문 확장 (F-001, #42) | 스코프 A(wiring 포함)로 재확인 → CheckFlow wiring + 타입 강화 + 테스트 보강, 재리뷰에서 해소 |
 | 2026-08-08 | 3-1 | code-reviewer가 #22 디자인 반영에서 (a) unlayered `:focus-visible{border-radius}`가 포커스 시 라운드 요소 붕괴(Playwright 실측) (b) `/check` h1 소실(a11y)을 지적 | 웹 디자인 반영 (F-001, #22) | SSOT를 그대로 옮긴 focus 규칙의 Tailwind cascade-layer 부작용 + h1 회귀 → radius 제거·화면별 h1 승격·F-005 대비 상향으로 수정, 재리뷰 통과 |
+| 2026-08-08 | 3-1 | code-reviewer가 #12에서 커밋 `Refs: F-ID` 푸터 누락·브랜치 `<F-ID>` 누락·회귀 단언 부족(컨벤션) 지적 | 웹 out_of_scope 표시 경계 (F-003/F-007, #12) | 커밋 Refs 푸터·의도 주석·테스트 단언 반영으로 해소. **F-ID 추적(커밋 푸터·브랜치)은 #10·#42·#22에서도 반복 누락된 컨벤션 갭 → 회고에서 enforce/완화 일괄 결정 대상** |

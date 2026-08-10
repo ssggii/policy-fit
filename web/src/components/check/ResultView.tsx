@@ -73,6 +73,7 @@ const STYLES = {
   badgeDot: "h-2 w-2 flex-none rounded-full",
   unknownList: "flex flex-col gap-1",
   unknownNote: "text-[13px] leading-relaxed text-review",
+  oosNote: "text-[13px] leading-relaxed text-muted",
   section: "flex flex-col gap-2.5",
   sectionTitle: "text-xs font-bold uppercase tracking-[0.1em] text-faint",
   reasoningList: "flex flex-col gap-2",
@@ -110,6 +111,13 @@ export default function ResultView({ result }: ResultViewProps) {
           <span className={`${STYLES.badgeDot} ${STATE_DOT_BG[state]}`} aria-hidden />
           {STATE_LABELS[state]}
         </h1>
+        {/* F-003·F-007: out_of_scope는 사용자 자격 결과(3-state)가 아니라 시스템 범위 한계임을
+            문구로 '부적합'과 구분한다. */}
+        {state === "out_of_scope" && (
+          <p className={STYLES.oosNote}>
+            가구 합산·행정청 판단이 필요해 앱이 대신 판정하기 어려운 정책이에요. 부적합이 아니라 자가판정 불가예요 — 직접 확인하면 자격이 있을 수 있어요.
+          </p>
+        )}
         {verdict.unknown_reasons && verdict.unknown_reasons.length > 0 && (
           <ul className={STYLES.unknownList}>
             {verdict.unknown_reasons.map((reason) => (
@@ -124,33 +132,36 @@ export default function ResultView({ result }: ResultViewProps) {
         <Disclaimer />
       </div>
 
-      <div className={STYLES.section}>
-        <p className={STYLES.sectionTitle}>판정 근거</p>
-        <ul className={STYLES.reasoningList}>
-          {reasoning.map((item) => (
-            <li key={item.atom} className={STYLES.reasoningItem}>
-              <span className={`${STYLES.reasoningIcon} ${ATOM_ICON_BG[item.result]}`} aria-hidden>
-                {ATOM_ICON_GLYPH[item.result]}
-              </span>
-              <div className={STYLES.reasoningBody}>
-                <div className={STYLES.reasoningLabelRow}>
-                  <span className={STYLES.reasoningLabel}>{item.label}</span>
-                  <span className={`${STYLES.reasoningResult} ${ATOM_RESULT_TEXT[item.result]}`}>
-                    {ATOM_RESULT_LABELS[item.result]}
-                  </span>
+      {/* out_of_scope는 백엔드가 근거를 빈 배열로 주므로 이 섹션을 숨긴다(빈 "판정 근거" 헤딩 방지). */}
+      {reasoning.length > 0 && (
+        <div className={STYLES.section}>
+          <p className={STYLES.sectionTitle}>판정 근거</p>
+          <ul className={STYLES.reasoningList}>
+            {reasoning.map((item) => (
+              <li key={item.atom} className={STYLES.reasoningItem}>
+                <span className={`${STYLES.reasoningIcon} ${ATOM_ICON_BG[item.result]}`} aria-hidden>
+                  {ATOM_ICON_GLYPH[item.result]}
+                </span>
+                <div className={STYLES.reasoningBody}>
+                  <div className={STYLES.reasoningLabelRow}>
+                    <span className={STYLES.reasoningLabel}>{item.label}</span>
+                    <span className={`${STYLES.reasoningResult} ${ATOM_RESULT_TEXT[item.result]}`}>
+                      {ATOM_RESULT_LABELS[item.result]}
+                    </span>
+                  </div>
+                  {item.detail && <p className={STYLES.reasoningDetail}>{item.detail}</p>}
+                  {(item.source || item.year) && (
+                    <p className={STYLES.reasoningSource}>
+                      출처: {item.source ?? "-"}
+                      {item.year ? ` (${item.year}년 기준)` : ""}
+                    </p>
+                  )}
                 </div>
-                {item.detail && <p className={STYLES.reasoningDetail}>{item.detail}</p>}
-                {(item.source || item.year) && (
-                  <p className={STYLES.reasoningSource}>
-                    출처: {item.source ?? "-"}
-                    {item.year ? ` (${item.year}년 기준)` : ""}
-                  </p>
-                )}
-              </div>
-            </li>
-          ))}
-        </ul>
-      </div>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       {/* F-006: application이 있는 경우에만(백엔드가 ineligible엔 생략) 핸드오프 버튼을 보여준다 */}
       {application?.url && (
