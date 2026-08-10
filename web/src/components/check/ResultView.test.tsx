@@ -38,6 +38,7 @@ describe("ResultView", () => {
     );
 
     expect(screen.getByText("부적합")).toBeInTheDocument();
+    expect(screen.getByText("판정 근거")).toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "공식 신청 페이지로 이동" })).not.toBeInTheDocument();
   });
 
@@ -52,6 +53,7 @@ describe("ResultView", () => {
 
     expect(screen.getByText("추가 확인 필요")).toBeInTheDocument();
     expect(screen.getByText("값을 정확히 입력하면 판정이 확정돼요.")).toBeInTheDocument();
+    expect(screen.getByText("판정 근거")).toBeInTheDocument();
     // F-006: "가능 또는 추가 확인 필요" 정책엔 신청 채널 링크가 제공된다 — eligible만 아니라 needs_review도 커버.
     expect(screen.getByRole("link", { name: "공식 신청 페이지로 이동" })).toHaveAttribute(
       "href",
@@ -75,6 +77,31 @@ describe("ResultView", () => {
       ).toBeInTheDocument();
       unmount();
     });
+  });
+
+  it("out_of_scope: 자가판정 불가 뱃지 + 부적합과 구분 문구, 빈 근거 섹션·신청 링크 없음(F-003·F-007)", () => {
+    // 백엔드는 out_of_scope에 근거 빈 배열·application 없음을 준다.
+    render(
+      <ResultView
+        result={buildResult({ verdict: { state: "out_of_scope" }, reasoning: [], application: undefined })}
+      />
+    );
+
+    expect(screen.getByText("자가판정 불가")).toBeInTheDocument();
+    // F-007: '부적합'과 문구상 구분 — 시스템 한계임을 명시
+    expect(screen.getByText(/부적합이 아니라 자가판정 불가예요/)).toBeInTheDocument();
+    // 근거가 비면 "판정 근거" 섹션을 노출하지 않는다
+    expect(screen.queryByText("판정 근거")).not.toBeInTheDocument();
+    // 신청 링크 없음
+    expect(screen.queryByRole("link", { name: "공식 신청 페이지로 이동" })).not.toBeInTheDocument();
+    // F-005 고지는 유지
+    expect(screen.getByText(/이 결과는 입력하신 내용을 바탕으로 한 추정 판정입니다/)).toBeInTheDocument();
+  });
+
+  it("out_of_scope 문구는 ineligible에는 나오지 않는다(부적합과 구분)", () => {
+    render(<ResultView result={buildResult({ verdict: { state: "ineligible" }, application: undefined })} />);
+    expect(screen.getByText("부적합")).toBeInTheDocument();
+    expect(screen.queryByText(/부적합이 아니라 자가판정 불가예요/)).not.toBeInTheDocument();
   });
 
   it("요건별 근거가 충족/미충족/불확실로 구분되어 표시된다", () => {
