@@ -91,13 +91,12 @@
 | `income_household` | 가구 소득 | (합산) | household_aggregate | 파라미터 이하 — 자가판정 불가 |
 | `income_original` | 원가구 소득 | (부모 가구 합산) | household_aggregate | 동상 |
 | `asset_self` | 본인 재산 | 재산액(대략) | self(느슨) | 파라미터 이하. 모름 허용 → unknown |
-| `household_composition` | 가구 구성 | 세대 독립성·혼인 등 | self 또는 household_aggregate* | 세대 분리 시 self, 합산 필요 시 aggregate |
+| `household_composition` | 가구 구성 | 세대 독립성·혼인 등 | self | 세대 독립성·혼인 여부는 본인이 직접 답할 수 있는 사실이다 — "합산값"이 아니라 "합산 필요 여부를 가르는 자가판정 사실"이라 항상 self다(ADR-0007) |
 | `employment` | 재직 | 재직/구직 상태 | self | 허용 상태 포함 여부 |
 | `education` | 학력 | 학력/재학 상태 | self | 허용 집합 포함 여부 |
 | `benefit_overlap` | 중복수혜 | 기수혜 여부 | self | 배제 대상 미수혜 여부 |
 | `separate_residence` | 별도 거주 인정 | (행정청 인정 여부) | admin_discretion | 시군구청장의 부모 별도거주 인정 여부. 자가입력 불가 → 항상 unknown(3.4) |
 
-*`household_composition`의 값 유형은 정책 파라미터가 scope를 지정한다. 상세는 정책 규칙(4장·5장)에서 확정.
 ※ 임계값·중위 %는 여기 두지 않는다 — Phase 7에서 공식 출처로 검증해 정책 규칙에 넣는다(persona-matrix는 근사치).
 
 ### 2.4 ID 체계·공유

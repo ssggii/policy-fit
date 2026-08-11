@@ -29,10 +29,10 @@ public final class AtomCatalog {
             Map.entry(AtomId.INCOME_HOUSEHOLD, ValueType.HOUSEHOLD_AGGREGATE),
             Map.entry(AtomId.INCOME_ORIGINAL, ValueType.HOUSEHOLD_AGGREGATE),
             Map.entry(AtomId.ASSET_SELF, ValueType.SELF),
-            // household_composition: DOMAIN §2.3 각주 — 실제 값 유형은 정책 파라미터(scope)가 결정하며
-            // "self 또는 household_aggregate"(§2.3)로 열려 있다. 청년월세 면제 게이트(§5.3·ADR-0005 D5)가
-            // scope:self로만 쓰므로 SELF로 둔다. evaluator는 self만 지원하고 그 외 scope는 fail-loud한다
-            // (ADR-0003 D4). scope 기반 값 유형 분기(aggregate)는 이슈 #9에서 확정한다.
+            // household_composition: 항상 SELF로 확정됨(이슈 #9, ADR-0007) — 이 원자가 평가하는 값
+            // (혼인 여부·세대 독립성)은 전부 본인이 직접 답할 수 있는 사실이라 household_aggregate
+            // 분기를 쓸 실사용처가 없다. evaluator는 scope:self만 지원하고 그 외 scope는 여전히
+            // fail-loud한다(ADR-0003 D4) — 이제는 "미확정 방어"가 아니라 "잘못된 파라미터 방어"다.
             Map.entry(AtomId.HOUSEHOLD_COMPOSITION, ValueType.SELF),
             Map.entry(AtomId.EMPLOYMENT, ValueType.SELF),
             Map.entry(AtomId.EDUCATION, ValueType.SELF),
