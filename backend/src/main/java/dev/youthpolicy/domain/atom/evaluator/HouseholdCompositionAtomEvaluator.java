@@ -13,10 +13,12 @@ import java.util.Map;
 /**
  * {@code household_composition} 원자 — DOMAIN §2.3·§4.3: params {scope, married?}.
  *
- * <p>이 원자는 {@code scope:"self"}만 지원한다 — 청년월세 면제 게이트(ADR-0005 D5)의
- * {@code {scope:"self", married:true}} 사용이 그 대상이다. {@code married:true} 파라미터는 "본인이
- * 혼인 상태인지"를 자가판정으로 묻는다. 값 유형은 항상 SELF로 확정됐다(이슈 #9, ADR-0007) —
- * 이 원자가 평가하는 값은 전부 자가판정 가능한 사실이라 household_aggregate 분기를 두지 않는다.
+ * <p>이 원자는 {@code scope:"self"}만 지원한다 — {@code married} 파라미터는 "본인이 혼인 상태인지"를
+ * 자가판정으로 묻는다. 두 정책이 반대 극성으로 재사용한다: 청년월세 면제 게이트(ADR-0005 D5)는
+ * {@code married:true}(기혼이면 원가구 소득 면제 성립), 버팀목 게이트(이슈 #11, ADR-0007)는
+ * {@code married:false}(미혼이어야 자가판정 가능 — 기혼은 부부합산이 필요해 out_of_scope). 값 유형은
+ * 항상 SELF로 확정됐다(이슈 #9, ADR-0007) — 이 원자가 평가하는 값은 전부 자가판정 가능한 사실이라
+ * household_aggregate 분기를 두지 않는다.
  *
  * <p>{@code scope}가 {@code self}가 아니거나 누락되면 fail-loud로 예외를 던진다(ADR-0003 D4).
  * 이제는 "값 유형 미확정 방어"가 아니라 "잘못된 규칙 데이터 방어"다 — self 외 scope는 유효한

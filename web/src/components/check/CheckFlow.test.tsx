@@ -133,19 +133,21 @@ describe("CheckFlow — 청년 주택드림(jutaek-dream)", () => {
 describe("CheckFlow — 청년전용 버팀목(beotimmok-jeonse)", () => {
   beforeEach(() => mockedPostVerdict.mockReset());
 
-  it("lease_type·asset_self를 포함한 정책별 질문·payload를 구성한다", async () => {
+  it("lease_type·asset_self·married를 포함한 정책별 질문·payload를 구성한다", async () => {
     mockedPostVerdict.mockResolvedValue({ ...eligibleResult, policy_id: "beotimmok-jeonse" });
     const user = userEvent.setup();
     render(<CheckFlow />);
     await selectPolicy(user, "청년전용 버팀목 전세자금대출");
 
-    // age → housing_none → lease_type(select) → income_self → asset_self
+    // age → housing_none → lease_type(select) → income_self → asset_self → married
     await answerNumber(user, "28");
     await chooseOption(user, "네, 없어요");
     expect(screen.getByText("지금 사는 집은 전세인가요, 월세인가요?")).toBeInTheDocument();
     await chooseOption(user, "전세");
     await answerNumber(user, "3000000");
     await answerNumber(user, "100000000");
+    expect(screen.getByText("혼인 중이신가요?")).toBeInTheDocument();
+    await chooseOption(user, "아니요, 미혼이에요");
 
     await waitFor(() => expect(mockedPostVerdict).toHaveBeenCalledTimes(1));
     const requestArg = mockedPostVerdict.mock.calls[0][0] as VerdictRequest;
@@ -157,7 +159,28 @@ describe("CheckFlow — 청년전용 버팀목(beotimmok-jeonse)", () => {
         lease_type: { known: true, value: "jeonse" },
         income_self_monthly_krw: { known: true, approx: false, value: 3000000 },
         asset_self_krw: { known: true, approx: false, value: 100000000 },
+        married: { known: true, value: false },
       },
     });
+  });
+
+  it("기혼(married=true) 응답이면 out_of_scope 결과가 그대로 표시된다(F-007)", async () => {
+    mockedPostVerdict.mockResolvedValue({
+      policy_id: "beotimmok-jeonse",
+      verdict: { state: "out_of_scope" },
+      reasoning: [],
+    });
+    const user = userEvent.setup();
+    render(<CheckFlow />);
+    await selectPolicy(user, "청년전용 버팀목 전세자금대출");
+
+    await answerNumber(user, "28");
+    await chooseOption(user, "네, 없어요");
+    await chooseOption(user, "전세");
+    await answerNumber(user, "3000000");
+    await answerNumber(user, "100000000");
+    await chooseOption(user, "네, 혼인 중이에요");
+
+    expect(await screen.findByText("자가판정 불가")).toBeInTheDocument();
   });
 });

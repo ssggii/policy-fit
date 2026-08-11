@@ -24,6 +24,11 @@
       }
     ]
   },
+  "out_of_scope_gate": {
+    "atom": "household_composition",
+    "params": { "scope": "self", "married": false },
+    "meta": { "source": "기혼은 부부합산 소득 평가가 필요해 자가판정 불가 — ADR-0005 D5 메커니즘을 반대 극성으로 재사용(ADR-0007), 이슈 #11", "year": 2026 }
+  },
   "application": {
     "url": "https://enhuf.molit.go.kr",
     "selection_method": "선발 없음 — 요건 충족 및 대출 심사 통과 시 이용 가능(추첨·선착순 아님)",

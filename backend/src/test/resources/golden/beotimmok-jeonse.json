@@ -6,10 +6,11 @@
       "housing_none": { "known": true, "value": true },
       "lease_type": { "known": true, "value": "jeonse" },
       "income_self_monthly_krw": { "known": true, "approx": false, "value": 3000000 },
-      "asset_self_krw": { "known": true, "approx": false, "value": 30000000 }
+      "asset_self_krw": { "known": true, "approx": false, "value": 30000000 },
+      "married": { "known": true, "value": false }
     },
     "expectedState": "eligible",
-    "source": "DOMAIN.md §5.2 — age/housing_none/lease_type(전세)/income_self/asset_self 전부 all_of"
+    "source": "DOMAIN.md §5.2 — age/housing_none/lease_type(전세)/income_self/asset_self 전부 all_of, 미혼(gate TRUE)"
   },
   {
     "caseId": "age-19-lower-boundary-eligible",
@@ -18,7 +19,8 @@
       "housing_none": { "known": true, "value": true },
       "lease_type": { "known": true, "value": "jeonse" },
       "income_self_monthly_krw": { "known": true, "approx": false, "value": 3000000 },
-      "asset_self_krw": { "known": true, "approx": false, "value": 30000000 }
+      "asset_self_krw": { "known": true, "approx": false, "value": 30000000 },
+      "married": { "known": true, "value": false }
     },
     "expectedState": "eligible",
     "source": "policies/beotimmok-jeonse.json age params min=19,max=34(jutaek-dream과 동일 연령대 재사용 — 출처 미검증)"
@@ -30,7 +32,8 @@
       "housing_none": { "known": true, "value": true },
       "lease_type": { "known": true, "value": "jeonse" },
       "income_self_monthly_krw": { "known": true, "approx": false, "value": 3000000 },
-      "asset_self_krw": { "known": true, "approx": false, "value": 30000000 }
+      "asset_self_krw": { "known": true, "approx": false, "value": 30000000 },
+      "married": { "known": true, "value": false }
     },
     "expectedState": "ineligible",
     "source": "policies/beotimmok-jeonse.json age params min=19"
@@ -42,7 +45,8 @@
       "housing_none": { "known": true, "value": true },
       "lease_type": { "known": true, "value": "jeonse" },
       "income_self_monthly_krw": { "known": true, "approx": false, "value": 3000000 },
-      "asset_self_krw": { "known": true, "approx": false, "value": 30000000 }
+      "asset_self_krw": { "known": true, "approx": false, "value": 30000000 },
+      "married": { "known": true, "value": false }
     },
     "expectedState": "eligible",
     "source": "policies/beotimmok-jeonse.json age params max=34"
@@ -54,7 +58,8 @@
       "housing_none": { "known": true, "value": true },
       "lease_type": { "known": true, "value": "jeonse" },
       "income_self_monthly_krw": { "known": true, "approx": false, "value": 3000000 },
-      "asset_self_krw": { "known": true, "approx": false, "value": 30000000 }
+      "asset_self_krw": { "known": true, "approx": false, "value": 30000000 },
+      "married": { "known": true, "value": false }
     },
     "expectedState": "ineligible",
     "source": "policies/beotimmok-jeonse.json age params max=34"
@@ -66,7 +71,8 @@
       "housing_none": { "known": true, "value": false },
       "lease_type": { "known": true, "value": "jeonse" },
       "income_self_monthly_krw": { "known": true, "approx": false, "value": 3000000 },
-      "asset_self_krw": { "known": true, "approx": false, "value": 30000000 }
+      "asset_self_krw": { "known": true, "approx": false, "value": 30000000 },
+      "married": { "known": true, "value": false }
     },
     "expectedState": "ineligible",
     "source": "DOMAIN.md §5.2 — housing_none = true 요구(무주택)"
@@ -78,7 +84,8 @@
       "housing_none": { "known": true, "value": true },
       "lease_type": { "known": true, "value": "wolse" },
       "income_self_monthly_krw": { "known": true, "approx": false, "value": 3000000 },
-      "asset_self_krw": { "known": true, "approx": false, "value": 30000000 }
+      "asset_self_krw": { "known": true, "approx": false, "value": 30000000 },
+      "married": { "known": true, "value": false }
     },
     "expectedState": "ineligible",
     "source": "DOMAIN.md §5.2 — lease_type allowed=[jeonse], 월세는 배제(청년월세 특별지원과 구분되는 지점 — §5.3)"
@@ -90,7 +97,8 @@
       "housing_none": { "known": true, "value": true },
       "lease_type": { "known": false },
       "income_self_monthly_krw": { "known": true, "approx": false, "value": 3000000 },
-      "asset_self_krw": { "known": true, "approx": false, "value": 30000000 }
+      "asset_self_krw": { "known": true, "approx": false, "value": 30000000 },
+      "married": { "known": true, "value": false }
     },
     "expectedState": "needs_review",
     "expectedUnknownReasons": ["input_uncertain"],
@@ -103,7 +111,8 @@
       "housing_none": { "known": true, "value": true },
       "lease_type": { "known": true, "value": "jeonse" },
       "income_self_monthly_krw": { "known": true, "approx": false, "value": 4166666 },
-      "asset_self_krw": { "known": true, "approx": false, "value": 30000000 }
+      "asset_self_krw": { "known": true, "approx": false, "value": 30000000 },
+      "married": { "known": true, "value": false }
     },
     "expectedState": "eligible",
     "source": "policies/beotimmok-jeonse.json income_self max_krw=50000000 — 웹 검색으로 부부합산 연 5천만원 확인, 1차 출처 대조는 이슈 #33에서 확정 예정. 월→연 ×12 잠정 가정"
@@ -115,7 +124,8 @@
       "housing_none": { "known": true, "value": true },
       "lease_type": { "known": true, "value": "jeonse" },
       "income_self_monthly_krw": { "known": true, "approx": false, "value": 4200000 },
-      "asset_self_krw": { "known": true, "approx": false, "value": 30000000 }
+      "asset_self_krw": { "known": true, "approx": false, "value": 30000000 },
+      "married": { "known": true, "value": false }
     },
     "expectedState": "ineligible",
     "source": "policies/beotimmok-jeonse.json income_self max_krw=50000000 — 웹 검색으로 부부합산 연 5천만원 확인, 1차 출처 대조는 이슈 #33에서 확정 예정. 월→연 ×12 잠정 가정"
@@ -127,7 +137,8 @@
       "housing_none": { "known": true, "value": true },
       "lease_type": { "known": true, "value": "jeonse" },
       "income_self_monthly_krw": { "known": false },
-      "asset_self_krw": { "known": true, "approx": false, "value": 30000000 }
+      "asset_self_krw": { "known": true, "approx": false, "value": 30000000 },
+      "married": { "known": true, "value": false }
     },
     "expectedState": "needs_review",
     "expectedUnknownReasons": ["input_uncertain"],
@@ -140,7 +151,8 @@
       "housing_none": { "known": true, "value": true },
       "lease_type": { "known": true, "value": "jeonse" },
       "income_self_monthly_krw": { "known": true, "approx": false, "value": 3000000 },
-      "asset_self_krw": { "known": true, "approx": false, "value": 345000000 }
+      "asset_self_krw": { "known": true, "approx": false, "value": 345000000 },
+      "married": { "known": true, "value": false }
     },
     "expectedState": "eligible",
     "source": "policies/beotimmok-jeonse.json asset_self max_krw=345000000 — 웹 검색 잠정값(출처 간 3.45억/3.37억 불일치), 이슈 #33에서 확정 예정"
@@ -152,7 +164,8 @@
       "housing_none": { "known": true, "value": true },
       "lease_type": { "known": true, "value": "jeonse" },
       "income_self_monthly_krw": { "known": true, "approx": false, "value": 3000000 },
-      "asset_self_krw": { "known": true, "approx": false, "value": 345000001 }
+      "asset_self_krw": { "known": true, "approx": false, "value": 345000001 },
+      "married": { "known": true, "value": false }
     },
     "expectedState": "ineligible",
     "source": "policies/beotimmok-jeonse.json asset_self max_krw=345000000 — 잠정값(이슈 #33에서 확정 예정)"
@@ -164,7 +177,8 @@
       "housing_none": { "known": true, "value": true },
       "lease_type": { "known": true, "value": "jeonse" },
       "income_self_monthly_krw": { "known": true, "approx": false, "value": 3000000 },
-      "asset_self_krw": { "known": true, "approx": true, "value": 20000000 }
+      "asset_self_krw": { "known": true, "approx": true, "value": 20000000 },
+      "married": { "known": true, "value": false }
     },
     "expectedState": "needs_review",
     "expectedUnknownReasons": ["input_uncertain"],
@@ -177,7 +191,8 @@
       "housing_none": { "known": true, "value": true },
       "lease_type": { "known": true, "value": "jeonse" },
       "income_self_monthly_krw": { "known": true, "approx": false, "value": 3000000 },
-      "asset_self_krw": { "known": false }
+      "asset_self_krw": { "known": false },
+      "married": { "known": true, "value": false }
     },
     "expectedState": "needs_review",
     "expectedUnknownReasons": ["input_uncertain"],
@@ -190,9 +205,50 @@
       "housing_none": { "known": true, "value": true },
       "lease_type": { "known": false },
       "income_self_monthly_krw": { "known": true, "approx": false, "value": 3000000 },
-      "asset_self_krw": { "known": true, "approx": false, "value": 30000000 }
+      "asset_self_krw": { "known": true, "approx": false, "value": 30000000 },
+      "married": { "known": true, "value": false }
     },
     "expectedState": "ineligible",
     "source": "DOMAIN.md §3.5 — all_of(false, unknown) → false(이미 확정된 false가 unknown을 흡수)"
+  },
+  {
+    "caseId": "married-true-out-of-scope",
+    "answers": {
+      "age": { "known": true, "value": 28 },
+      "housing_none": { "known": true, "value": true },
+      "lease_type": { "known": true, "value": "jeonse" },
+      "income_self_monthly_krw": { "known": true, "approx": false, "value": 3000000 },
+      "asset_self_krw": { "known": true, "approx": false, "value": 30000000 },
+      "married": { "known": true, "value": true }
+    },
+    "expectedState": "out_of_scope",
+    "source": "기혼(gate FALSE) → 부부합산 소득 평가가 필요해 자가판정 불가 — ADR-0005 D5 재사용(ADR-0007), 이슈 #11"
+  },
+  {
+    "caseId": "married-unknown-needs-review",
+    "answers": {
+      "age": { "known": true, "value": 28 },
+      "housing_none": { "known": true, "value": true },
+      "lease_type": { "known": true, "value": "jeonse" },
+      "income_self_monthly_krw": { "known": true, "approx": false, "value": 3000000 },
+      "asset_self_krw": { "known": true, "approx": false, "value": 30000000 },
+      "married": { "known": false }
+    },
+    "expectedState": "needs_review",
+    "expectedUnknownReasons": ["input_uncertain"],
+    "source": "혼인 여부 '모름'(gate UNKNOWN) → 확인하면 판정 — ADR-0005 D5 재사용, 이슈 #11"
+  },
+  {
+    "caseId": "age-false-married-true-ineligible-not-out-of-scope",
+    "answers": {
+      "age": { "known": true, "value": 35 },
+      "housing_none": { "known": true, "value": true },
+      "lease_type": { "known": true, "value": "jeonse" },
+      "income_self_monthly_krw": { "known": true, "approx": false, "value": 3000000 },
+      "asset_self_krw": { "known": true, "approx": false, "value": 30000000 },
+      "married": { "known": true, "value": true }
+    },
+    "expectedState": "ineligible",
+    "source": "base 확정 탈락(연령 초과)은 gate(기혼→FALSE)보다 우선 — ADR-0005 D5 우선순위, age-35-above-max-ineligible과 대응"
   }
 ]
