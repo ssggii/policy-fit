@@ -13,14 +13,14 @@ import java.util.Map;
 /**
  * {@code household_composition} 원자 — DOMAIN §2.3·§4.3: params {scope, married?}.
  *
- * <p>이 슬라이스는 {@code scope:"self"} 경로만 지원한다 — 청년월세 면제 게이트(ADR-0005 D5)의
+ * <p>이 원자는 {@code scope:"self"}만 지원한다 — 청년월세 면제 게이트(ADR-0005 D5)의
  * {@code {scope:"self", married:true}} 사용이 그 대상이다. {@code married:true} 파라미터는 "본인이
- * 혼인 상태인지"를 자가판정으로 묻는다.
+ * 혼인 상태인지"를 자가판정으로 묻는다. 값 유형은 항상 SELF로 확정됐다(이슈 #9, ADR-0007) —
+ * 이 원자가 평가하는 값은 전부 자가판정 가능한 사실이라 household_aggregate 분기를 두지 않는다.
  *
- * <p>{@code scope}가 {@code self}가 아니거나(가구 합산이 필요한 경우) 누락되면 fail-loud로 예외를
- * 던진다(ADR-0003 D4). {@code household_composition}의 값 유형은 §2.3 각주상 scope에 따라
- * self/household_aggregate로 갈리는 열린 문제이며(이슈 #9), 미확정 scope를 조용히 평가해
- * out_of_scope를 누락하는 실패 모드를 막기 위함이다.
+ * <p>{@code scope}가 {@code self}가 아니거나 누락되면 fail-loud로 예외를 던진다(ADR-0003 D4).
+ * 이제는 "값 유형 미확정 방어"가 아니라 "잘못된 규칙 데이터 방어"다 — self 외 scope는 유효한
+ * 값이 아니므로 조용히 넘기면 규칙 데이터 오류를 놓친다.
  */
 public final class HouseholdCompositionAtomEvaluator implements AtomEvaluator {
 
@@ -28,9 +28,9 @@ public final class HouseholdCompositionAtomEvaluator implements AtomEvaluator {
     public AtomOutcome evaluate(Map<String, Object> params, Answers answers) {
         String scope = ParamsUtil.getString(params, "scope").orElse(null);
         if (!"self".equals(scope)) {
-            // ADR-0003 D4 fail-loud — self 외 scope(household_aggregate 등)는 이슈 #9 확정 전까지 평가 불가.
+            // ADR-0003 D4 fail-loud — self 외 scope는 유효한 값이 아니다(이슈 #9, ADR-0007: 항상 self로 확정).
             throw new UnsupportedOperationException(
-                    "household_composition scope='" + scope + "'는 아직 평가할 수 없습니다 (self만 지원, 이슈 #9).");
+                    "household_composition scope='" + scope + "'는 지원하지 않습니다 (self만 유효, ADR-0007).");
         }
 
         // scope:self의 유일한 MVP 사용은 married 요건이다. married 파라미터가 없으면 규칙 데이터 오류로
