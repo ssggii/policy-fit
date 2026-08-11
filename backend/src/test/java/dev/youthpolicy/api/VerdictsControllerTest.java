@@ -91,7 +91,8 @@ class VerdictsControllerTest {
                     "housing_none": { "known": true, "value": true },
                     "lease_type": { "known": true, "value": "jeonse" },
                     "income_self_monthly_krw": { "known": true, "approx": false, "value": 3000000 },
-                    "asset_self_krw": { "known": true, "approx": false, "value": 30000000 }
+                    "asset_self_krw": { "known": true, "approx": false, "value": 30000000 },
+                    "married": { "known": true, "value": false }
                   }
                 }
                 """;
@@ -122,6 +123,29 @@ class VerdictsControllerTest {
         mockMvc.perform(post("/verdicts").contentType(MediaType.APPLICATION_JSON).content(body))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.verdict.state").value("ineligible"))
+                .andExpect(jsonPath("$.application").doesNotExist());
+    }
+
+    @Test
+    void beotimmokJeonseOutOfScopeWhenMarried_applicationOmitted() throws Exception {
+        String body = """
+                {
+                  "policy_id": "beotimmok-jeonse",
+                  "answers": {
+                    "age": { "known": true, "value": 28 },
+                    "housing_none": { "known": true, "value": true },
+                    "lease_type": { "known": true, "value": "jeonse" },
+                    "income_self_monthly_krw": { "known": true, "approx": false, "value": 3000000 },
+                    "asset_self_krw": { "known": true, "approx": false, "value": 30000000 },
+                    "married": { "known": true, "value": true }
+                  }
+                }
+                """;
+
+        mockMvc.perform(post("/verdicts").contentType(MediaType.APPLICATION_JSON).content(body))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.verdict.state").value("out_of_scope"))
+                .andExpect(jsonPath("$.reasoning.length()").value(0))
                 .andExpect(jsonPath("$.application").doesNotExist());
     }
 

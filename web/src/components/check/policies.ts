@@ -27,7 +27,7 @@ export const POLICIES: PolicyCatalogEntry[] = [
     id: "beotimmok-jeonse",
     name: "청년전용 버팀목 전세자금대출",
     description: "전세로 살고 있는 청년에게 낮은 금리로 대출해줘요.",
-    questionOrder: ["age", "housing_none", "lease_type", "income_self", "asset_self"],
+    questionOrder: ["age", "housing_none", "lease_type", "income_self", "asset_self", "married"],
   },
   {
     id: "cheongnyeon-wolse",

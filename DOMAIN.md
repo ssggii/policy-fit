@@ -269,9 +269,9 @@ Rule DSL 트리는 정책 레코드의 `rule` 필드다. 나머지(선발 방식
 
 ### 5.2 청년전용 버팀목 전세자금대출
 
-- 사용 원자: `age`, `housing_none`, `lease_type`(전세), `income_self`, `asset_self`
-- 값 유형: 전부 `self`(`asset_self`는 느슨) → MVP 페르소나(미혼) 기준 범위 안
-- **열린 문제(Phase 7):** 기혼 신청자의 소득은 **부부합산**(→ `household_aggregate`)이다. 기혼 사용자를 scope 한정할지 `out_of_scope`로 보낼지 결정 필요. MVP 미혼 페르소나에선 `income_self`로 성립.
+- 사용 원자: `age`, `housing_none`, `lease_type`(전세), `income_self`, `asset_self` (자격 rule) + `household_composition[married]` (범위 게이트)
+- 값 유형: 전부 `self`(`asset_self`는 느슨) → 범위 안
+- **결정(이슈 #11, 열린 문제 해소):** 기혼 신청자의 소득은 **부부합산**(household_aggregate)이라 `income_self`로 자가판정할 수 없다. 청년월세 면제 게이트(§5.3·ADR-0005 D5)를 반대 극성으로 재사용한다 — `out_of_scope_gate`에 `household_composition{scope:"self", married:false}` 하나만 두어, 게이트 TRUE(미혼)면 기존 `income_self` 경로 그대로, FALSE(기혼)면 `out_of_scope`로 보낸다. `household_composition`의 값 유형은 항상 self로 확정돼 있다(ADR-0007) — household_aggregate 분기 없이 성립.
 
 ### 5.3 청년월세 특별지원 (면제군 한정)
 

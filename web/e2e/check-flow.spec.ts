@@ -100,13 +100,14 @@ test.describe("청년 주택드림 청약통장", () => {
 test.describe("청년전용 버팀목 전세자금대출", () => {
   const POLICY_NAME = /버팀목 전세자금대출/;
 
-  test("age=28 / 무주택 / 전세 / 월소득 300만 / 재산 3천만 → 가능", async ({ page }) => {
+  test("age=28 / 무주택 / 전세 / 월소득 300만 / 재산 3천만 / 미혼 → 가능", async ({ page }) => {
     await goToCheck(page, POLICY_NAME);
     await answerAge(page, "28");
     await answerHousingNone(page);
     await answerLeaseType(page, "전세");
     await answerIncome(page, "3000000");
     await answerAsset(page, "30000000");
+    await answerMarried(page, false);
 
     await expect(page.getByText("가능", { exact: true })).toBeVisible();
     await expect(page.getByRole("link", { name: "공식 신청 페이지로 이동" })).toBeVisible();
@@ -120,8 +121,26 @@ test.describe("청년전용 버팀목 전세자금대출", () => {
     await answerLeaseType(page, "월세");
     await answerIncome(page, "3000000");
     await answerAsset(page, "30000000");
+    await answerMarried(page, false);
 
     await expect(page.getByText("부적합", { exact: true })).toBeVisible();
+    await expect(page.getByRole("link", { name: "공식 신청 페이지로 이동" })).toHaveCount(0);
+    await expect(page.getByText(DISCLAIMER_TEXT)).toBeVisible();
+  });
+
+  // 이슈 #11, ADR-0005 D5 재사용(ADR-0007) — 기혼은 부부합산 소득 평가가 필요해 자가판정 불가.
+  test("age=28 / 무주택 / 전세 / 월소득 300만 / 재산 3천만 / 기혼(부부합산 필요) → 자가판정 불가", async ({ page }) => {
+    await goToCheck(page, POLICY_NAME);
+    await answerAge(page, "28");
+    await answerHousingNone(page);
+    await answerLeaseType(page, "전세");
+    await answerIncome(page, "3000000");
+    await answerAsset(page, "30000000");
+    await answerMarried(page, true);
+
+    await expect(page.getByText("자가판정 불가", { exact: true })).toBeVisible();
+    await expect(page.getByText("부적합이 아니라 자가판정 불가예요")).toBeVisible();
+    await expect(page.getByText("판정 근거")).toHaveCount(0);
     await expect(page.getByRole("link", { name: "공식 신청 페이지로 이동" })).toHaveCount(0);
     await expect(page.getByText(DISCLAIMER_TEXT)).toBeVisible();
   });
