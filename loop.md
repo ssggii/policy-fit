@@ -1,7 +1,7 @@
 # loop — 작업 루프 정의
 
-> 에이전트가 매 작업에서 따르는 표준 사이클의 운영 규칙. 책임 범위는 **1~7 (스펙 → commit)**.
-> push 이후(PR·CI·배포)는 결정론 영역이며 **원격 저장소 연결 후 활성화**한다(현재 원격 없음).
+> 에이전트가 매 작업에서 따르는 표준 사이클의 운영 규칙. 책임 범위는 **1~7 (스펙 → commit)** + 머지 후 정리(§2).
+> push 이후(PR·CI)는 결정론 영역이다 — **원격이 이미 연결·활성 상태**(§2 "머지 후" 참조). 배포(CI 이후)는 미결(ADR-0004 D6).
 > 작업 단위·게이트·모델·멀티에이전트·상태·실패 처리를 정의한다. 갱신은 회고(9)를 통한다.
 
 ## 1. 작업 단위와 등급
@@ -21,6 +21,7 @@
 1. 스펙          F-ID·완료기준(=SPEC 수용기준) 확정       ▸[S]  사람 승인
 2. 설계 검토      ARCHITECTURE·DOMAIN·contracts 로드       ▸[0]  설계 먼저(자기점검)
 3. 코드 구현      스코프 분기 → 설계대로 작성
+     ├▸[B]  현재 브랜치 확인(≠main) — main이면 구현 중단, 브랜치 생성+즉시 push 후 재개
      ├ 스코프 판정: backend-only / web-only / 풀스택
      ├▸[C]  contracts/ 변경 필요? → 중단·사람 라우팅(계약 고정)
      ├▸[D]  외부 라이브러리 필요? → 사람 승인
@@ -37,6 +38,13 @@
 
 **풀스택 작업**은 **계약 확정 먼저** → backend·web을 각 워크트리에서 병렬 구현(§5) → **통합(E2E)까지 통과**해야 7로 진입한다.
 
+**머지 후** (squash merge는 origin/main에 새 커밋을 만들어 로컬과 갈라진다, CONTRIBUTING.md):
+
+1. 로컬 동기화 — `git fetch origin && git checkout main && git reset --hard origin/main && git remote prune origin` (항상, `Closes`/`Refs` 무관)
+2. 이슈 완료조건 체크박스 갱신 — `Closes`로 자동 닫혀도 GitHub은 본문 체크박스를 안 건드린다(항상 수동)
+3. 이슈 close — **`Refs #N`으로 연 PR만** 완료 코멘트와 함께 수동 close. `Closes #N`이었으면 머지 시 이미 자동으로 닫혔으니 생략
+4. (선택) 보드 Status 확인
+
 게이트 3·3-1은 병렬 실행한다. 저위험 권고는 그 자리에서 즉시 반영 후 테스트 재실행으로 재검증한다. 구조적 원인의 중대 이슈는 핫픽스하지 않고 §8.2 fallback(회고 등록 + 구현 복귀)을 따른다.
 
 ## 3. 게이트 규칙
@@ -45,6 +53,7 @@
 |---|---|---|---|
 | **S** | F-ID 매핑 + 완료기준(=SPEC 수용기준) 명시·승인 | 사람 | `skills/spec` + 사람 |
 | **0** | ARCHITECTURE·DOMAIN·contracts를 먼저 읽고, 스코프 관련 accepted ADR의 결정사항이 실제 코드에 반영됐는지 확인(문서상 accepted ≠ 구현 완료) | 에이전트 자기점검(soft) | CLAUDE.md 규칙 |
+| **B** | 구현 시작 전 현재 브랜치가 `main`이 아님을 확인(CONTRIBUTING.md 브랜치 규칙) | hook(하드 차단) | `hooks/guard-branch.sh` (PreToolUse) |
 | **C** | 작업이 `contracts/` 변경을 요구하면 impl 중단, 사람 승인 라우팅 | 사람 | CLAUDE.md DO NOT + 진입 체크 |
 | **D** | 외부 라이브러리 추가 전 승인 | 사람 | CLAUDE.md DO NOT + hook(가능 시) |
 | **1** | 위험 변경(등급 C)은 계획 사전 검토 | 사람 | plan mode |
