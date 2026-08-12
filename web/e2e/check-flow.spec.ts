@@ -7,9 +7,10 @@ import { test, expect } from "@playwright/test";
  *   cd web && pnpm dev &   (또는 playwright webServer가 자동 기동)
  *   cd web && pnpm e2e
  *
- * 소득·자산 값은 항상 임계값에서 충분히 떨어진 값을 쓴다 — 버팀목 asset_self.max_krw(3.45억/3.37억
- * 출처 불일치, 이슈 #33)·청년월세 income_self.max_krw(중위소득 미확정, 이슈 #15)가 아직 잠정값이라
- * 경계값 근처를 찌르면 그 값이 확정될 때 이 e2e가 깨진다(#43 스코프 조정 코멘트 참조).
+ * 소득·자산 값은 항상 임계값에서 충분히 떨어진 값을 쓴다 — 버팀목 asset_self.max_krw(이슈 #33)·
+ * 청년월세 income_self.max_krw(이슈 #15)는 1차 출처로 확정됐지만, 둘 다 매년 갱신되는 통계치
+ * 기반이라 다음 연도 값이 바뀌어도 경계값 근처를 안 찌르면 이 e2e는 계속 안전하다(#43 스코프
+ * 조정 코멘트 참조).
  */
 
 const DISCLAIMER_TEXT = "이 결과는 입력하신 내용을 바탕으로 한 추정 판정입니다";
