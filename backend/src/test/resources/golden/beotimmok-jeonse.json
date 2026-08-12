@@ -115,7 +115,7 @@
       "married": { "known": true, "value": false }
     },
     "expectedState": "eligible",
-    "source": "policies/beotimmok-jeonse.json income_self max_krw=50000000 — 웹 검색으로 부부합산 연 5천만원 확인, 1차 출처 대조는 이슈 #33에서 확정 예정. 월→연 ×12 잠정 가정"
+    "source": "policies/beotimmok-jeonse.json income_self max_krw=50000000 — 기금e든든 1차 출처로 확정(이슈 #33). 월→연 ×12는 판정 로직 가정(원자 스펙, 값 자체와 무관)"
   },
   {
     "caseId": "income-just-over-annual-cap-ineligible",
@@ -128,7 +128,7 @@
       "married": { "known": true, "value": false }
     },
     "expectedState": "ineligible",
-    "source": "policies/beotimmok-jeonse.json income_self max_krw=50000000 — 웹 검색으로 부부합산 연 5천만원 확인, 1차 출처 대조는 이슈 #33에서 확정 예정. 월→연 ×12 잠정 가정"
+    "source": "policies/beotimmok-jeonse.json income_self max_krw=50000000 — 기금e든든 1차 출처로 확정(이슈 #33). 월→연 ×12는 판정 로직 가정(원자 스펙, 값 자체와 무관)"
   },
   {
     "caseId": "income-unknown-needs-review",
@@ -155,7 +155,7 @@
       "married": { "known": true, "value": false }
     },
     "expectedState": "eligible",
-    "source": "policies/beotimmok-jeonse.json asset_self max_krw=345000000 — 웹 검색 잠정값(출처 간 3.45억/3.37억 불일치), 이슈 #33에서 확정 예정"
+    "source": "policies/beotimmok-jeonse.json asset_self max_krw=345000000 — 기금e든든 1차 출처로 확정(2026년도 기준, 이슈 #33). 3.37억설은 2차 소스 오류로 폐기"
   },
   {
     "caseId": "asset-just-over-boundary-ineligible",
@@ -168,7 +168,7 @@
       "married": { "known": true, "value": false }
     },
     "expectedState": "ineligible",
-    "source": "policies/beotimmok-jeonse.json asset_self max_krw=345000000 — 잠정값(이슈 #33에서 확정 예정)"
+    "source": "policies/beotimmok-jeonse.json asset_self max_krw=345000000 — 기금e든든 1차 출처로 확정(2026년도 기준, 이슈 #33)"
   },
   {
     "caseId": "asset-approx-needs-review-input-uncertain",
