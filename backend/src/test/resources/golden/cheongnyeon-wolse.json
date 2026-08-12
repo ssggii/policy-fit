@@ -83,7 +83,7 @@
       "married": { "known": true, "value": true }
     },
     "expectedState": "ineligible",
-    "source": "본인 소득 초과 base 탈락(연 3600만 > 근사 2580만) — gate보다 우선"
+    "source": "본인 소득 초과 base 탈락(연 36,000,000원 > 확정 상한 26,375,019원, 이슈 #15) — gate보다 우선"
   },
   {
     "caseId": "lease-jeonse-ineligible",

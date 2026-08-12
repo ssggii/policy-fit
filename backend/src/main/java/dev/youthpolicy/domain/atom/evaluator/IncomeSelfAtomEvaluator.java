@@ -14,8 +14,10 @@ import java.util.Map;
  * {@code income_self} 원자 — DOMAIN §2.3·§4.3: params {max_krw}(연소득 상한) 이하 여부.
  *
  * <p>잠정 가정(Phase 7 미확정, TODO): API 요청 필드는 월소득({@code income_self_monthly_krw})이고,
- * 월→연 환산 공식이 아직 공식 출처로 확정되지 않았다. 이 구현은 단순 {@code ×12}로 근사한다.
- * 실제 종합소득/근로소득 산정 방식(비과세 항목·4대보험 공제 등)은 확정되는 대로 갱신해야 한다.
+ * 이 구현은 단순 {@code ×12}로 연 환산한다. 실제 종합소득/근로소득 산정 방식(비과세 항목·4대보험
+ * 공제 등, 불규칙 소득의 월 대표값 산정 등)이 이 단순 곱셈과 정확히 일치하는지는 여전히 미확정이다.
+ * 청년월세(이슈 #15)는 이 가정을 전제로 {@code max_krw}를 역산해뒀으므로(정책 JSON meta 참조)
+ * 비교 자체는 내부적으로 일관되지만, ×12 근사 자체의 정확성은 별개로 남는다.
  *
  * <p>Phase 7 잠정 규칙: {@code approx=true}인 응답은 값이 있어도 항상 UNKNOWN으로 처리하고
  * true/false로 자동 해소하지 않는다. 태그는 {@code input_uncertain}이다 — DOMAIN §3.4는 self 원자의
