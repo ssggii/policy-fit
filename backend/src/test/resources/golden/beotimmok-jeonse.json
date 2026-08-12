@@ -250,5 +250,70 @@
     },
     "expectedState": "ineligible",
     "source": "base 확정 탈락(연령 초과)은 gate(기혼→FALSE)보다 우선 — ADR-0005 D5 우선순위, age-35-above-max-ineligible과 대응"
+  },
+  {
+    "caseId": "income-cap-plus-one-unit-ineligible",
+    "answers": {
+      "age": { "known": true, "value": 28 },
+      "housing_none": { "known": true, "value": true },
+      "lease_type": { "known": true, "value": "jeonse" },
+      "income_self_monthly_krw": { "known": true, "approx": false, "value": 4166667 },
+      "asset_self_krw": { "known": true, "approx": false, "value": 30000000 },
+      "married": { "known": true, "value": false }
+    },
+    "expectedState": "ineligible",
+    "source": "이슈 #17 경계대역 확충 — annual=50,000,004(연 상한 50,000,000 초과 4원, 월×12 환산의 진짜 경계 off-by-one). income-just-under-annual-cap-eligible(4166666→49,999,992)과 짝을 이루는 상한 바로 위 케이스"
+  },
+  {
+    "caseId": "income-cap-minus-200k-band-eligible",
+    "answers": {
+      "age": { "known": true, "value": 28 },
+      "housing_none": { "known": true, "value": true },
+      "lease_type": { "known": true, "value": "jeonse" },
+      "income_self_monthly_krw": { "known": true, "approx": false, "value": 4150000 },
+      "asset_self_krw": { "known": true, "approx": false, "value": 30000000 },
+      "married": { "known": true, "value": false }
+    },
+    "expectedState": "eligible",
+    "source": "이슈 #17 경계대역(±20만) 확충 — annual=49,800,000(연 상한 50,000,000의 -200,000)"
+  },
+  {
+    "caseId": "income-cap-plus-200k-band-ineligible",
+    "answers": {
+      "age": { "known": true, "value": 28 },
+      "housing_none": { "known": true, "value": true },
+      "lease_type": { "known": true, "value": "jeonse" },
+      "income_self_monthly_krw": { "known": true, "approx": false, "value": 4183333 },
+      "asset_self_krw": { "known": true, "approx": false, "value": 30000000 },
+      "married": { "known": true, "value": false }
+    },
+    "expectedState": "ineligible",
+    "source": "이슈 #17 경계대역(±20만) 확충 — annual=50,199,996(연 상한 50,000,000의 +199,996)"
+  },
+  {
+    "caseId": "asset-cap-minus-200k-band-eligible",
+    "answers": {
+      "age": { "known": true, "value": 28 },
+      "housing_none": { "known": true, "value": true },
+      "lease_type": { "known": true, "value": "jeonse" },
+      "income_self_monthly_krw": { "known": true, "approx": false, "value": 3000000 },
+      "asset_self_krw": { "known": true, "approx": false, "value": 344800000 },
+      "married": { "known": true, "value": false }
+    },
+    "expectedState": "eligible",
+    "source": "이슈 #17 경계대역(±20만) 확충 — asset=344,800,000(자산 상한 345,000,000의 -200,000)"
+  },
+  {
+    "caseId": "asset-cap-plus-200k-band-ineligible",
+    "answers": {
+      "age": { "known": true, "value": 28 },
+      "housing_none": { "known": true, "value": true },
+      "lease_type": { "known": true, "value": "jeonse" },
+      "income_self_monthly_krw": { "known": true, "approx": false, "value": 3000000 },
+      "asset_self_krw": { "known": true, "approx": false, "value": 345200000 },
+      "married": { "known": true, "value": false }
+    },
+    "expectedState": "ineligible",
+    "source": "이슈 #17 경계대역(±20만) 확충 — asset=345,200,000(자산 상한 345,000,000의 +200,000)"
   }
 ]

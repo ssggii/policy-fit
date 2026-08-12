@@ -96,5 +96,53 @@
     },
     "expectedState": "ineligible",
     "source": "월세 아닌 전세 → 임차형태 미충족 base 탈락"
+  },
+  {
+    "caseId": "income-cap-under-eligible",
+    "answers": {
+      "age": { "known": true, "value": 26 },
+      "housing_none": { "known": true, "value": true },
+      "lease_type": { "known": true, "value": "wolse" },
+      "income_self_monthly_krw": { "known": true, "approx": false, "value": 2197918 },
+      "married": { "known": true, "value": true }
+    },
+    "expectedState": "eligible",
+    "source": "이슈 #17 경계대역 확충 — annual=26,375,016(연 상한 26,375,019 이하 3원 차, 이슈 #15 확정값). gate TRUE(기혼)라 base income_self가 실제로 판정을 가른다. 기존 골든셋엔 이 상한의 경계 케이스가 전혀 없었음"
+  },
+  {
+    "caseId": "income-cap-plus-one-unit-ineligible",
+    "answers": {
+      "age": { "known": true, "value": 26 },
+      "housing_none": { "known": true, "value": true },
+      "lease_type": { "known": true, "value": "wolse" },
+      "income_self_monthly_krw": { "known": true, "approx": false, "value": 2197919 },
+      "married": { "known": true, "value": true }
+    },
+    "expectedState": "ineligible",
+    "source": "이슈 #17 경계대역 확충 — annual=26,375,028(연 상한 26,375,019 초과 9원, 월×12 환산의 진짜 경계 off-by-one, 이슈 #15 확정값)"
+  },
+  {
+    "caseId": "income-cap-minus-200k-band-eligible",
+    "answers": {
+      "age": { "known": true, "value": 26 },
+      "housing_none": { "known": true, "value": true },
+      "lease_type": { "known": true, "value": "wolse" },
+      "income_self_monthly_krw": { "known": true, "approx": false, "value": 2181251 },
+      "married": { "known": true, "value": true }
+    },
+    "expectedState": "eligible",
+    "source": "이슈 #17 경계대역(±20만) 확충 — annual=26,175,012(연 상한 26,375,019의 -200,007)"
+  },
+  {
+    "caseId": "income-cap-plus-200k-band-ineligible",
+    "answers": {
+      "age": { "known": true, "value": 26 },
+      "housing_none": { "known": true, "value": true },
+      "lease_type": { "known": true, "value": "wolse" },
+      "income_self_monthly_krw": { "known": true, "approx": false, "value": 2214585 },
+      "married": { "known": true, "value": true }
+    },
+    "expectedState": "ineligible",
+    "source": "이슈 #17 경계대역(±20만) 확충 — annual=26,575,020(연 상한 26,375,019의 +200,001)"
   }
 ]
