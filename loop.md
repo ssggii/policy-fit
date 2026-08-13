@@ -15,6 +15,9 @@
 | **B 일반** | 기능 구현·버그 수정 | 1~7 전부 |
 | **C 위험** | 계약·경계·스키마·보안·비가역 | B + 게이트 1(plan)·C 강제 + Opus 검토 |
 
+- 티켓 착수 직후 **등급과 적용/생략 게이트를 한 줄로 선언**하고 시작한다(이슈 없이 시작하는 chore·fix 포함). 등급이 게이트 1·3·3-1의 소환 여부를 가르므로, 선언해두면 오분류를 착수 시점에 잡을 수 있다.
+- 선언은 PR 본문 체크리스트에도 남겨 세션 밖에서 추적 가능하게 한다 — 대화에만 있으면 다음 세션·감사 시점에 확인할 방법이 없다.
+
 ## 2. 표준 사이클 (1~7)
 
 ```
@@ -26,10 +29,10 @@
      ├▸[C]  contracts/ 변경 필요? → 중단·사람 라우팅(계약 고정)
      ├▸[D]  외부 라이브러리 필요? → 사람 승인
      └▸[1]  위험 변경(등급 C)은 plan mode 먼저(Opus 검토)
-4. 테스트        경로별 러너(JUnit / Vitest·Playwright)    ▸[2]  green +(eval 임계값, Phase7~) 아니면 정지(hook)
+4. 테스트        경로별 러너(JUnit / Vitest·Playwright)    ▸[2]  green +(eval 임계값, Phase7~) 아니면 정지(자기점검)
 5·6. 정합성+리뷰  reviewer 서브에이전트                     ▸[3]  설계·계약 경계 위반 0
                                                          ▸[3-1] 중대 이슈 0
-7. commit        feature 브랜치 · Conventional Commits     ▸[4]  사람 diff·메시지 검토 (+hook: green)
+7. commit        feature 브랜치 · Conventional Commits     ▸[4]  사람 diff·메시지 검토
 ──────────────────────────────────────────────
   ↺ 리뷰(5·6) 지적 → 3.구현 복귀 → 4.테스트 재실행
   │ push → PR → CI  (원격 연결 후 활성)
@@ -57,10 +60,10 @@
 | **C** | 작업이 `contracts/` 변경을 요구하면 impl 중단, 사람 승인 라우팅 | 사람 | CLAUDE.md DO NOT + 진입 체크 |
 | **D** | 외부 라이브러리 추가 전 승인 | 사람 | CLAUDE.md DO NOT + hook(가능 시) |
 | **1** | 위험 변경(등급 C)은 계획 사전 검토 | 사람 | plan mode |
-| **2** | 경로별 테스트 green +(LLM 파싱 시 eval 임계값, Phase7~) | hook + 결정론 도구 | `hooks/require-tests-green.sh` (Stop) |
+| **2** | 경로별 테스트 green +(LLM 파싱 시 eval 임계값, Phase7~) | 에이전트 자기점검(soft) | 러너 직접 실행(`./gradlew test`·`pnpm test`). **hook 미구현 — 기계 강제 없음** |
 | **3** | ARCHITECTURE·DOMAIN의 경계·계약 위반 0, 판단 로직 런타임 LLM 누수 0 | reviewer agent | `agents/consistency-reviewer.md` |
 | **3-1** | 중대 이슈(버그·보안·가독성·컨벤션·엣지) 0 | reviewer agent | `agents/code-reviewer.md` (기존 `code-review` 스킬 래핑 가능) |
-| **4** | diff·메시지 검토 후 승인 + 테스트 green | 사람 + hook | `hooks/guard-commit.sh` (PreToolUse) |
+| **4** | diff·메시지 검토 후 승인 + 테스트 green | 사람 | 커밋 전 사람 diff 검토. **hook 미구현 — 기계 강제 없음** |
 
 - 게이트 **3은 특정 아키텍처 스타일을 전제하지 않는다**(헥사고날 등은 미결). 백엔드 아키텍처를 ADR로 확정하면 그때 게이트를 특화한다.
 - 게이트 **0은 자기점검(soft)** 이라 기계 강제 불가 — 중요 시 reviewer가 "설계 미참조" 신호로 반려해 보강한다.
@@ -109,7 +112,7 @@
 | 2(eval) | 임계값 미달 | 근거 제시 후 (a)구현 보강 (b)임계값 재합의 중 선택 요청 |
 | 3 | 경계 위반이 설계상 불가피 | 차단 유지. "설계 변경 필요" 신호로 격상 → 게이트 S/0 회귀 |
 | 3-1 | 중대 이슈가 구조적 원인 | 핫픽스 금지. 회고(9) 항목 등록 + 구현(3) 복귀 |
-| 4 | 테스트 green 아님 | hook 차단. 7 진입을 막고 4로 되돌림 |
+| 4 | 테스트 green 아님 | 사람이 차단. 7 진입을 막고 4로 되돌림 |
 
 ### 8.3 에스컬레이션 트리거 (자동 진행 중단 + 사람 호출)
 1. 재시도 예산 소진

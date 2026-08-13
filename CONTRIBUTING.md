@@ -11,6 +11,7 @@
 - **scope**(선택, 영역): `backend` · `web` · `contracts` · `domain` · `spec` · `adr` · `loop` · `ci`
 - **summary**: 간결·명령형에 준함
 - **푸터(선택)**: 관련 SPEC 기능 ID를 `Refs: F-003`으로 표기할 수 있다(어느 SPEC 기능인지 추적용). 필수는 아니며, 이슈·PR 연결은 GitHub 이슈#·PR `Closes #N`이 담당한다.
+  - **이슈 번호(`#N`)를 커밋 푸터에 넣지 않는다** — `Closes`/`Refs #N` 판단은 PR 본문 "연관 이슈" 필드 소관이고, 커밋 푸터의 `Refs:`는 SPEC F-ID 전용이다.
 - **Breaking change**: 본문에 `BREAKING CHANGE: ...`
 - **본문(선택)**: 변경 이유가 자명하지 않으면 "왜/무엇"을 적는다. `Refs: F-ID` 푸터는 선택, 트리비얼(등급 A)은 제목만 허용.
   - 본문은 **산문 단락이 아니라 짧은 불릿 3~5개**로 쓴다(제목 → 빈 줄 → 불릿 → 필요 시 푸터).

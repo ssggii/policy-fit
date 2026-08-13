@@ -44,6 +44,7 @@
 
 ## 체크리스트 (loop.md 게이트)
 
+> 작업 등급: A / B / C  <!-- loop.md §1. 생략한 게이트가 있으면 등급 근거를 함께 적습니다 -->
 > 해당 없는 항목은 삭제해 주세요.
 
 - [ ] 테스트 green (게이트 2) — backend JUnit / web Vitest·Playwright
