@@ -30,7 +30,9 @@
 3. 사람이 승인·조정한다.
 4. AI가 승인된 이슈를 `Sprint N`으로 태깅한다(Sprint 필드).
 
-산출물: Sprint N 백로그 확정(보드 `sprint:"Sprint N"`).
+산출물: Sprint N 백로그 확정(보드 `sprint:"Sprint N"`) + **목표 한 문장**.
+
+목표는 리뷰(§5)에서 달성 여부를 판정하는 기준이므로 계획 시점에 `docs/sprint-review.md`에 먼저 적어둔다 — 사후에 티켓 구성으로 역추정하면 "목표를 달성했나"를 판정할 근거가 사라진다.
 
 ## 3. 실행 (Execution)
 
