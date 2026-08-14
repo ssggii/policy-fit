@@ -9,12 +9,18 @@ const baseReasoning: VerdictResult["reasoning"] = [
   { atom: "income_self", label: "본인 소득", result: "met", source: "국토교통부", year: 2026 },
 ];
 
+const SELECTION_METHOD_FIXTURE = "선발 없음";
+
 function buildResult(overrides: Partial<VerdictResult>): VerdictResult {
   return {
     policy_id: "jutaek-dream",
     verdict: { state: "eligible" },
     reasoning: baseReasoning,
-    application: { url: "https://nhuf.molit.go.kr", selection_method: "선발 없음", period: "상시" },
+    application: {
+      url: "https://nhuf.molit.go.kr",
+      selection_method: SELECTION_METHOD_FIXTURE,
+      period: "상시",
+    },
     ...overrides,
   };
 }
@@ -59,6 +65,9 @@ describe("ResultView", () => {
       "href",
       "https://nhuf.molit.go.kr"
     );
+    // F-007: 선발 방식 고지가 라벨뿐 아니라 '값까지' 화면에 그대로 렌더된다.
+    // 값의 정확성(정책 데이터가 1차 출처와 맞는지)은 backend VerdictsControllerTest 담당 — 여기선 표시 경로만 가드한다.
+    expect(screen.getByText("선발 방식").closest("p")).toHaveTextContent(SELECTION_METHOD_FIXTURE);
   });
 
   it("3개 state 모두에서 추정 고지가 항상 보인다", () => {
