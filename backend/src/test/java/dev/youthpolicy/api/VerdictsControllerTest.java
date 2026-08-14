@@ -8,6 +8,8 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.not;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -169,6 +171,32 @@ class VerdictsControllerTest {
                 .andExpect(jsonPath("$.verdict.state").value("eligible"))
                 .andExpect(jsonPath("$.reasoning.length()").value(4)) // 자격 요건(base)만 — 게이트 원자 제외
                 .andExpect(jsonPath("$.application.url").exists());
+    }
+
+    /**
+     * F-007 회귀 가드(#73). 청년월세는 정원 6만·초과 시 소득·재산 낮은 순 선발이며 '선발 없음'이 아니다.
+     * 옛 값으로 되돌아가면 '가능' 판정을 받은 사용자가 잘못된 선발 고지를 읽게 된다.
+     * 자격 판정 로직과 실패 원인을 구분하려고 별도 테스트로 분리했다.
+     */
+    @Test
+    void wolseApplicationDisclosesSelectionQuota() throws Exception {
+        String body = """
+                {
+                  "policy_id": "cheongnyeon-wolse",
+                  "answers": {
+                    "age": { "known": true, "value": 26 },
+                    "housing_none": { "known": true, "value": true },
+                    "lease_type": { "known": true, "value": "wolse" },
+                    "income_self_monthly_krw": { "known": true, "approx": false, "value": 1500000 },
+                    "married": { "known": true, "value": true }
+                  }
+                }
+                """;
+
+        mockMvc.perform(post("/verdicts").contentType(MediaType.APPLICATION_JSON).content(body))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.application.selection_method").value(containsString("정원 6만명")))
+                .andExpect(jsonPath("$.application.selection_method").value(not(containsString("선발 없음"))));
     }
 
     @Test
