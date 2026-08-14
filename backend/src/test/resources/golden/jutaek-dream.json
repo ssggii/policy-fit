@@ -47,7 +47,7 @@
       "income_self_monthly_krw": { "known": true, "approx": false, "value": 4166666 }
     },
     "expectedState": "eligible",
-    "source": "연소득 5천만원 이하(국토교통부) — 월→연 환산 ×12는 잠정 가정, 공식 환산 규정 미확정(추정 — 공식 검증 필요)"
+    "source": "연소득 5천만원 이하 — 주택도시기금 상품안내 \"직전년도 또는 전전년도 신고소득이 있는 자로 연소득 5천만 원 이하\"(이슈 #14 확정). 월→연 ×12는 기준 시점이 달라 이 정책과 어긋난다 — 근사 오차가 아니라 별개 값이며 이슈 #82에서 정정. 이 케이스는 그때까지의 현행 동작을 고정한다"
   },
   {
     "caseId": "income-just-over-annual-cap-ineligible",
@@ -57,7 +57,7 @@
       "income_self_monthly_krw": { "known": true, "approx": false, "value": 4200000 }
     },
     "expectedState": "ineligible",
-    "source": "연소득 5천만원 이하(국토교통부) — 월→연 환산 ×12는 잠정 가정, 공식 환산 규정 미확정(추정 — 공식 검증 필요)"
+    "source": "연소득 5천만원 이하 — 주택도시기금 상품안내 \"직전년도 또는 전전년도 신고소득이 있는 자로 연소득 5천만 원 이하\"(이슈 #14 확정). 월→연 ×12는 기준 시점이 달라 이 정책과 어긋난다 — 근사 오차가 아니라 별개 값이며 이슈 #82에서 정정. 이 케이스는 그때까지의 현행 동작을 고정한다"
   },
   {
     "caseId": "income-unknown-needs-review",
